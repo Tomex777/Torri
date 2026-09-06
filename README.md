@@ -1,86 +1,66 @@
 <div align="center">
 
-<a href="https://mihon.app">
-    <img src="./.github/assets/logo.png" alt="Mihon logo" title="Mihon logo" width="80"/>
-</a>
+# Torri
 
-# Mihon [App](#)
+### by Night
 
-### Full-featured reader
-Discover and read manga, webtoons, comics, and more – easier than ever on your Android device.
+A full-featured Android manga, webtoon, and comics reader — made into my own experience without sacrificing the foundation that makes Mihon great.
 
-[![Discord server](https://img.shields.io/discord/1195734228319617024.svg?label=&labelColor=6A7EC2&color=7389D8&logo=discord&logoColor=FFFFFF)](https://discord.gg/mihon)
-[![GitHub downloads](https://img.shields.io/github/downloads/mihonapp/mihon/total?label=downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://mihon.app/download)
+</div>
 
-[![CI](https://img.shields.io/github/actions/workflow/status/mihonapp/mihon/build.yml?labelColor=27303D)](https://github.com/mihonapp/mihon/actions/workflows/build_push.yml)
-[![License: Apache-2.0](https://img.shields.io/github/license/mihonapp/mihon?labelColor=27303D&color=0877d2)](/LICENSE)
-[![Translation status](https://img.shields.io/weblate/progress/mihon?labelColor=27303D&color=946300)](https://hosted.weblate.org/engage/mihon/)
+> [!NOTE]
+> **Torri is a Night project based on Mihon.** Mihon remains the upstream open-source project; Torri adds its own identity, presentation, and carefully isolated features on top.
 
-## Download
+## About Torri
 
-[![Mihon Stable](https://img.shields.io/github/release/mihonapp/mihon.svg?maxAge=3600&label=Stable&labelColor=06599d&color=043b69)](https://mihon.app/download)
-[![Mihon Beta](https://img.shields.io/github/v/release/mihonapp/mihon-preview.svg?maxAge=3600&label=Beta&labelColor=2c2c47&color=1c1c39)](https://mihon.app/download)
+Torri keeps the proven Mihon reader, source/extension architecture, downloads, library, storage, tracking, backup, and database foundations while giving the app its own Night identity and room for Torri-specific features.
 
-*Requires Android 8.0 or higher.*
+The current Torri base is pinned to **Mihon v0.20.4** so changes can be reviewed and tested against a known upstream checkpoint.
 
 ## Features
 
-<div align="left">
+- Local reading of content.
+- A configurable reader with multiple viewers, reading directions, and extensive reader settings.
+- Source and extension support inherited from Mihon.
+- Downloads and offline reading.
+- Categories and library management.
+- Tracker support including MangaBaka, MyAnimeList, AniList, Kitsu, MangaUpdates, Shikimori, Bangumi, and Hikka.
+- Light, dark, and customizable themes.
+- Scheduled library updates.
+- Local backups and supported cloud backup destinations.
+- Torri-specific branding and features developed under **Night**.
 
-* Local reading of content.
-* A configurable reader with multiple viewers, reading directions and other settings.
-* Tracker support: [MangaBaka](https://mangabaka.org), [MyAnimeList](https://myanimelist.net/), [AniList](https://anilist.co/), [Kitsu](https://kitsu.app/), [MangaUpdates](https://mangaupdates.com), [Shikimori](https://shikimori.one), [Bangumi](https://bgm.tv/), and [Hikka](https://hikka.io/) support.
-* Categories to organize your library.
-* Light and dark themes.
-* Schedule updating your library for new chapters.
-* Create backups locally to read offline or to your desired cloud service.
-* Plus much more...
+## Project identity
 
-</div>
+- **App:** Torri
+- **Brand / developer identity:** Night
+- **Repository:** https://github.com/Tomex777/mihon
+- **Upstream:** https://github.com/mihonapp/mihon
 
-## Contributing
+Torri intentionally keeps Mihon's internal architecture and namespaces where changing them would create unnecessary compatibility risk. Branding changes are kept isolated so upstream updates remain practical to merge.
 
-[Code of conduct](./CODE_OF_CONDUCT.md) · [Contributing guide](./CONTRIBUTING.md)
+## Upstream and credits
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Torri exists because of the work of Mihon, Tachiyomi, and their contributors. Upstream project information and contributor history can be found at:
 
-Before reporting a new issue, take a look at the [FAQ](https://mihon.app/docs/faq/general), the [changelog](https://mihon.app/changelogs/) and the already opened [issues](https://github.com/mihonapp/mihon/issues); if you got any questions, join our [Discord server](https://discord.gg/mihon).
+- https://github.com/mihonapp/mihon
+- https://mihon.app
 
+Torri does not claim ownership of upstream Mihon code or third-party projects. Night branding applies to Torri and Torri-specific modifications.
 
-### Repositories
+## Disclaimer
 
-[![mihonapp/website - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=mihonapp&repo=website&bg_color=161B22&text_color=c9d1d9&title_color=0877d2&icon_color=0877d2&border_radius=8&hide_border=true&description_lines_count=2)](https://github.com/mihonapp/website/)
-[![mihonapp/bitmap.kt - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=mihonapp&repo=bitmap.kt&bg_color=161B22&text_color=c9d1d9&title_color=0877d2&icon_color=0877d2&border_radius=8&hide_border=true&description_lines_count=2)](https://github.com/mihonapp/bitmap.kt/)
+The developer of Torri has no affiliation with content providers available through sources or extensions, and Torri hosts no content.
 
-### Credits
+## License
 
-Thank you to all the people who have contributed!
+Torri-specific modifications Copyright © 2026 Night
 
-<a href="https://github.com/mihonapp/mihon/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=mihonapp/mihon" alt="Mihon app contributors" title="Mihon app contributors" width="800"/>
-</a>
-
-### Disclaimer
-
-The developer(s) of this application does not have any affiliation with the content providers available, and this application hosts zero content.
-
-### License
-
-<pre>
-Copyright © 2015 Javier Tomás
+Copyright © 2015 Javier Tomás  
 Copyright © 2024 Mihon Open Source Project
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this project except in compliance with the License. You may obtain a copy of the License at:
 
-http://www.apache.org/licenses/LICENSE-2.0
+https://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-</pre>
-
-</div>
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an **"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND**, either express or implied. See the License for the specific language governing permissions and limitations under the License.
