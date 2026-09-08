@@ -34,7 +34,7 @@ The current Torri base is pinned to **Mihon v0.20.4** so changes can be reviewed
 
 - **App:** Torri
 - **Brand / developer identity:** Night
-- **Repository:** https://github.com/Tomex777/mihon
+- **Repository:** https://github.com/Tomex777/Torri
 - **Upstream:** https://github.com/mihonapp/mihon
 
 Torri intentionally keeps Mihon's internal architecture and namespaces where changing them would create unnecessary compatibility risk. Branding changes are kept isolated so upstream updates remain practical to merge.

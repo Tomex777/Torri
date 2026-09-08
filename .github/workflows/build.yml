@@ -12,6 +12,7 @@ on:
   push:
     branches:
       - main
+      - 'torri/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -28,6 +29,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Package Torri source
+        run: git archive --format=zip --output="Torri-source-${GITHUB_SHA}.zip" HEAD
+
+      - name: Upload Torri source
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: torri-source-${{ github.sha }}
+          path: Torri-source-${{ github.sha }}.zip
+          retention-days: 14
 
       - name: Dependency Review
         if: github.event_name == 'pull_request'
@@ -65,11 +76,11 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: arm64-v8a-${{ github.sha }}
+          name: torri-arm64-v8a-${{ github.sha }}
           path: app/build/outputs/apk/release/app-arm64-v8a-release.apk
 
       - name: Upload mapping
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: mapping-${{ github.sha }}
+          name: torri-mapping-${{ github.sha }}
           path: app/build/outputs/mapping/release

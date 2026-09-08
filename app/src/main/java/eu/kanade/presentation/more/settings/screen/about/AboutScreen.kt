@@ -57,7 +57,7 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import kotlin.time.Instant
 
-private const val TORRI_REPOSITORY_URL = "https://github.com/Tomex777/mihon"
+private const val TORRI_REPOSITORY_URL = "https://github.com/Tomex777/Torri"
 private const val TORRI_RELEASE_URL = "$TORRI_REPOSITORY_URL/releases"
 private const val MIHON_UPSTREAM_URL = "https://github.com/mihonapp/mihon"
 
