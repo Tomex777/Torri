@@ -93,7 +93,7 @@ object AboutScreen : Screen() {
                 item {
                     TextPreferenceWidget(
                         title = "Torri by Night",
-                        subtitle = "A Night project · Built on Mihon",
+                        subtitle = "Your gate into manga · Built on Mihon",
                         onPreferenceClick = { uriHandler.openUri(TORRI_REPOSITORY_URL) },
                     )
                 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432 432" role="img" aria-labelledby="title description">
+  <title id="title">Torri</title>
+  <desc id="description">A minimal white Japanese torii gate on a dark rounded-square background.</desc>
+  <rect width="432" height="432" rx="104" fill="#0D0B0E"/>
+  <g fill="#FFFFFF">
+    <path d="M112 142c30-7 66-12 104-12s74 5 104 12l-4 24c-32-8-64-12-100-12s-68 4-100 12z"/>
+    <path d="M132 174h168l-6 24H138z"/>
+    <path d="M151 194h28l-8 118h-36z"/>
+    <path d="M253 194h28l16 118h-36z"/>
+    <path d="M197 156h38l-3 25h-32z"/>
+  </g>
+</svg>

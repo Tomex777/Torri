@@ -1,10 +1,14 @@
 <div align="center">
 
+<img src="./.github/assets/torri-logo.svg" alt="Torri gate logo" title="Torri" width="96"/>
+
 # Torri
 
 ### by Night
 
-A full-featured Android manga, webtoon, and comics reader — made into my own experience without sacrificing the foundation that makes Mihon great.
+**Your gate into manga.**
+
+A full-featured Android manga, webtoon, and comics reader built on Mihon's proven foundation.
 
 </div>
 
@@ -13,35 +17,35 @@ A full-featured Android manga, webtoon, and comics reader — made into my own e
 
 ## About Torri
 
-Torri keeps the proven Mihon reader, source/extension architecture, downloads, library, storage, tracking, backup, and database foundations while giving the app its own Night identity and room for Torri-specific features.
+Torri keeps Mihon's reader, source and extension architecture, downloads, library, storage, tracking, backup, and database foundations intact while giving the app its own Night identity.
 
 The current Torri base is pinned to **Mihon v0.20.4** so changes can be reviewed and tested against a known upstream checkpoint.
 
+*Requires Android 8.0 or higher.*
+
 ## Features
 
-- Local reading of content.
-- A configurable reader with multiple viewers, reading directions, and extensive reader settings.
-- Source and extension support inherited from Mihon.
+- Local reading of manga, webtoons, comics, and supported archives.
+- Configurable readers with multiple viewers and reading directions.
+- Mihon-compatible sources and extensions.
 - Downloads and offline reading.
-- Categories and library management.
-- Tracker support including MangaBaka, MyAnimeList, AniList, Kitsu, MangaUpdates, Shikimori, Bangumi, and Hikka.
-- Light, dark, and customizable themes.
-- Scheduled library updates.
+- Categories, library management, tracking, and scheduled updates.
 - Local backups and supported cloud backup destinations.
-- Torri-specific branding and features developed under **Night**.
+- Light, dark, AMOLED, and customizable themes, including Torri's signature Night theme.
 
 ## Project identity
 
 - **App:** Torri
-- **Brand / developer identity:** Night
+- **Brand / developer:** Night
+- **Application ID:** `app.torri`
 - **Repository:** https://github.com/Tomex777/Torri
 - **Upstream:** https://github.com/mihonapp/mihon
 
-Torri intentionally keeps Mihon's internal architecture and namespaces where changing them would create unnecessary compatibility risk. Branding changes are kept isolated so upstream updates remain practical to merge.
+Torri intentionally keeps Mihon's internal namespaces and compatibility-sensitive architecture. Torri-specific work is isolated so upstream updates remain practical to review and merge.
 
 ## Upstream and credits
 
-Torri exists because of the work of Mihon, Tachiyomi, and their contributors. Upstream project information and contributor history can be found at:
+Torri exists because of the work of Mihon, Tachiyomi, and their contributors:
 
 - https://github.com/mihonapp/mihon
 - https://mihon.app
@@ -56,11 +60,7 @@ The developer of Torri has no affiliation with content providers available throu
 
 Torri-specific modifications Copyright © 2026 Night
 
-Copyright © 2015 Javier Tomás  
+Copyright © 2015 Javier Tomás<br>
 Copyright © 2024 Mihon Open Source Project
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this project except in compliance with the License. You may obtain a copy of the License at:
-
-https://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an **"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND**, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+Licensed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) for the complete license text.

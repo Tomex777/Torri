@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2560 1440" role="img" aria-labelledby="title description">
+  <title id="title">Torri by Night</title>
+  <desc id="description">Torri's dark feature graphic with a white torii gate and magenta accents.</desc>
+  <defs>
+    <radialGradient id="glow" cx="85%" cy="12%" r="80%">
+      <stop offset="0" stop-color="#A9004A" stop-opacity="0.42"/>
+      <stop offset="0.48" stop-color="#421226" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#0D0B0E" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="2560" height="1440" fill="#0D0B0E"/>
+  <rect width="2560" height="1440" fill="url(#glow)"/>
+  <circle cx="2320" cy="1220" r="370" fill="#FF5C8A" opacity="0.05"/>
+  <g transform="translate(250 460)">
+    <rect width="520" height="520" rx="126" fill="#171215" stroke="#FF5C8A" stroke-width="5"/>
+    <g transform="translate(44 44)" fill="#FFFFFF">
+      <path d="M112 142c30-7 66-12 104-12s74 5 104 12l-4 24c-32-8-64-12-100-12s-68 4-100 12z"/>
+      <path d="M132 174h168l-6 24H138z"/>
+      <path d="M151 194h28l-8 118h-36z"/>
+      <path d="M253 194h28l16 118h-36z"/>
+      <path d="M197 156h38l-3 25h-32z"/>
+    </g>
+  </g>
+  <g font-family="Inter, Roboto, Arial, sans-serif">
+    <text x="920" y="650" fill="#FFFFFF" font-size="212" font-weight="800" letter-spacing="20">TORRI</text>
+    <text x="930" y="770" fill="#FF8FB0" font-size="72" font-weight="600">your gate into manga.</text>
+    <line x1="930" y1="840" x2="2030" y2="840" stroke="#5C3A47" stroke-width="3"/>
+    <text x="930" y="920" fill="#CFC1C6" font-size="38" font-weight="500" letter-spacing="5">A NIGHT PROJECT · BUILT ON MIHON</text>
+  </g>
+</svg>
