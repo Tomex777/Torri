@@ -1,0 +1,107 @@
+name: Torri v0.21.2 draft APK
+
+# A one-off, private draft release candidate on the integration branch.
+# GitHub Release assets avoid the exhausted GitHub Actions artifact storage quota.
+on:
+  push:
+    branches:
+      - torri/upgrade-mihon-0.21.2
+    paths:
+      - .github/workflows/torri-0212-rc.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: torri-0212-draft-apk
+  cancel-in-progress: false
+
+jobs:
+  draft_apk:
+    if: github.repository == 'Tomex777/Torri' && github.ref == 'refs/heads/torri/upgrade-mihon-0.21.2'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          java-version-file: .github/.java-version
+          distribution: temurin
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+
+      - name: Check source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'applicationId = "app.torri"' app/build.gradle.kts
+          grep -Fq 'versionName = "0.21.2"' app/build.gradle.kts
+          grep -Fq 'rootProject.name = "Torri"' settings.gradle.kts
+          grep -Fq 'AppTheme.NIGHT' app/src/main/java/eu/kanade/domain/ui/UiPreferences.kt
+          grep -Fq 'Torri by Night' app/src/main/java/eu/kanade/presentation/more/settings/screen/about/AboutScreen.kt
+
+      - name: Run tests and compile
+        run: ./gradlew spotlessCheck testDebugUnitTest verifySqlDelightMigration assembleRelease
+
+      - name: Verify APK packages and prepare release files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-universal-release.apk dist/torri-0.21.2-rc1-universal.apk
+          cp app/build/outputs/apk/release/app-arm64-v8a-release.apk dist/torri-0.21.2-rc1-arm64-v8a.apk
+
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
+          for apk in dist/*.apk; do
+            "$BUILD_TOOLS/aapt" dump badging "$apk" | tee /tmp/torri-badging.txt
+            grep -Eq "^package: name='app.torri' versionCode='38' versionName='0.21.2'" /tmp/torri-badging.txt
+            "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$apk"
+            sha256sum "$apk" | tee -a dist/SHA256SUMS.txt
+          done
+          cat > dist/RELEASE-NOTES.txt <<'EOF'
+          Torri by Night v0.21.2 - PRE-RELEASE TEST BUILD
+
+          Built from Torri's Mihon v0.21.2 integration branch, with the Night
+          theme and Torri identity preserved. Faster reader preloading,
+          large-library screens, downloads, database processing, extensions
+          and Cloudflare handling are integrated from upstream Mihon.
+
+          WARNING: Mihon v0.21.x irreversibly merges duplicate manga and
+          chapter records during migration. Back up your complete Torri
+          library before installing.
+
+          TEST-ONLY SIGNATURE: This CI build uses the runner's temporary
+          Android debug signing identity if no signing config exists.
+          It may NOT install over an existing Torri app and MUST NOT be
+          treated as a stable in-place upgrade. Do not uninstall the app
+          to bypass a signature mismatch unless your backup is verified.
+
+          Main is unchanged. Device testing is outstanding.
+          EOF
+
+      - name: Create private draft GitHub release with APKs
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="v0.21.2-torri-rc1"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::Draft release $TAG already exists. Never replace APKs with a different signing identity."
+            exit 1
+          fi
+          gh release create "$TAG" \
+            --target "$GITHUB_SHA" \
+            --draft \
+            --prerelease \
+            --title "Torri by Night v0.21.2 RC1 (DRAFT / TEST ONLY)" \
+            --notes-file dist/RELEASE-NOTES.txt \
+            dist/torri-0.21.2-rc1-arm64-v8a.apk \
+            dist/torri-0.21.2-rc1-universal.apk \
+            dist/SHA256SUMS.txt
+          gh release view "$TAG" --json url,name,isDraft,isPrerelease
