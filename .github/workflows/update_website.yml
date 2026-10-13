@@ -9,7 +9,9 @@ on:
 
 jobs:
   update_website:
-    runs-on: 'ubuntu-26.04'
+    # Upstream-only integration; Torri must never dispatch to Mihon's website.
+    if: github.repository == 'mihonapp/mihon'
+    runs-on: 'ubuntu-24.04'
 
     steps:
       - name: Update website
