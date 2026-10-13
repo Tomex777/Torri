@@ -79,6 +79,21 @@ jobs:
       - name: Build app
         run: ./gradlew assembleRelease
 
+      - name: Verify Torri package and APK signatures
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq '"Tomex777/Torri"' app/src/main/java/eu/kanade/tachiyomi/data/updater/AppUpdateChecker.kt
+          SDK_BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
+          for apk in \
+            app/build/outputs/apk/release/app-universal-release.apk \
+            app/build/outputs/apk/release/app-arm64-v8a-release.apk; do
+            test -s "$apk"
+            "$SDK_BUILD_TOOLS/aapt" dump badging "$apk" | tee /tmp/torri-package.txt
+            grep -Eq "^package: name='app.torri' versionCode='38' versionName='0.21.2'" /tmp/torri-package.txt
+            "$SDK_BUILD_TOOLS/apksigner" verify --verbose "$apk"
+          done
+
       - name: Upload APK
         continue-on-error: true
         if: github.event_name != 'pull_request'
