@@ -1,0 +1,101 @@
+name: Torri RC2 installed-APK smoke test
+
+# Independently verify the already-built, signed Android APK instead of
+# treating Gradle compilation as proof the app can launch.
+on:
+  push:
+    branches:
+      - ci/rc2-android-smoke
+    paths:
+      - .github/workflows/torri-rc2-installed-apk.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  installed_apk:
+    if: github.repository == 'Tomex777/Torri'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Download existing Torri Preview RC2 draft APK
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release view v0.21.2-torri-rc2 -R "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft | grep -qx true
+          gh release download v0.21.2-torri-rc2 \
+            -R "$GITHUB_REPOSITORY" \
+            --pattern 'torri-0.21.2-rc2-universal.apk' \
+            --dir "$RUNNER_TEMP"
+          APK="$RUNNER_TEMP/torri-0.21.2-rc2-universal.apk"
+          test -s "$APK"
+          TOOL_DIR="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          "$TOOL_DIR/aapt" dump badging "$APK" | tee "$RUNNER_TEMP/rc-badging.txt"
+          grep -Eq "^package: name='app.torri.rc' versionCode='38' versionName='0.21.2-rc2'" "$RUNNER_TEMP/rc-badging.txt"
+          "$TOOL_DIR/apksigner" verify --verbose --print-certs "$APK"
+
+      - name: Free hosted-runner disk and enable KVM
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell /opt/hostedtoolcache/CodeQL
+          sudo rm -rf "$ANDROID_HOME/ndk"
+          df -h /
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install, launch, background and resume on Android 15
+        uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disk-size: 2048M
+          ram-size: 2048M
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: |
+            # android-emulator-runner uses /usr/bin/sh, not bash.
+            set -eu
+            APK="$RUNNER_TEMP/torri-0.21.2-rc2-universal.apk"
+            adb install "$APK"
+            adb logcat -c
+            adb shell am start -W -n app.torri.rc/eu.kanade.tachiyomi.ui.main.MainActivity
+            sleep 25
+            PID="$(adb shell pidof app.torri.rc | tr -d '\r')"
+            if [ -z "$PID" ]; then
+              echo "::error::Torri Preview RC2 exited on first launch"
+              adb logcat -d -b crash | tail -150
+              exit 1
+            fi
+            echo "First launch running: $PID"
+            adb shell input keyevent KEYCODE_HOME
+            adb shell am start -W -n app.torri.rc/eu.kanade.tachiyomi.ui.main.MainActivity
+            sleep 8
+            PID="$(adb shell pidof app.torri.rc | tr -d '\r')"
+            if [ -z "$PID" ]; then
+              echo "::error::Torri Preview RC2 exited after resume"
+              adb logcat -d -b crash | tail -150
+              exit 1
+            fi
+            if adb logcat -d -b crash | grep -q 'Process: app.torri.rc'; then
+              echo "::error::Detected Android runtime crash"
+              adb logcat -d -b crash | tail -150
+              exit 1
+            fi
+            adb exec-out screencap -p > "$RUNNER_TEMP/torri-rc2-android15.png"
+            echo "PASS: signed Torri Preview APK installed, launched and resumed. PID: $PID"
+
+      - name: Upload actual Android emulator screenshot
+        if: success()
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: torri-rc2-android15-screenshot
+          path: ${{ runner.temp }}/torri-rc2-android15.png
+          retention-days: 3
