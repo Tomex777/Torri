@@ -14,6 +14,10 @@ class AppUpdateChecker(
 ) {
 
     suspend fun checkForUpdate(forceCheck: Boolean = false): GetApplicationRelease.Result {
+        // Torri does not publish numbered nightly builds. Do not compare our
+        // development build's commit count against the stable release tags.
+        if (isNightlyBuildType) return GetApplicationRelease.Result.NoNewUpdate
+
         // Disable app update checks for older Android versions that we're going to drop support for
         // if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
         //     return GetApplicationRelease.Result.OsTooOld
@@ -36,13 +40,9 @@ class AppUpdateChecker(
     }
 }
 
-val GITHUB_REPO: String by lazy {
-    if (isNightlyBuildType) {
-        "mihonapp/mihon-preview"
-    } else {
-        "mihonapp/mihon"
-    }
-}
+// Torri must never offer Mihon APKs as in-place app updates.
+// No Torri nightly release channel is published yet.
+const val GITHUB_REPO = "Tomex777/Torri"
 
 val RELEASE_TAG: String by lazy {
     if (isNightlyBuildType) {
