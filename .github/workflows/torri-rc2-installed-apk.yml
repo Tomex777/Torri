@@ -20,6 +20,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     steps:
+      - name: Checkout smoke-test script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
       - name: Download existing Torri Preview RC2 draft APK
         shell: bash
         env:
@@ -60,37 +63,9 @@ jobs:
           ram-size: 2048M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          script: |
-            # android-emulator-runner uses /usr/bin/sh, not bash.
-            set -eu
-            APK="$RUNNER_TEMP/torri-0.21.2-rc2-universal.apk"
-            adb install "$APK"
-            adb logcat -c
-            adb shell am start -W -n app.torri.rc/eu.kanade.tachiyomi.ui.main.MainActivity
-            sleep 25
-            PID="$(adb shell pidof app.torri.rc | tr -d '\r')"
-            if [ -z "$PID" ]; then
-              echo "::error::Torri Preview RC2 exited on first launch"
-              adb logcat -d -b crash | tail -150
-              exit 1
-            fi
-            echo "First launch running: $PID"
-            adb shell input keyevent KEYCODE_HOME
-            adb shell am start -W -n app.torri.rc/eu.kanade.tachiyomi.ui.main.MainActivity
-            sleep 8
-            PID="$(adb shell pidof app.torri.rc | tr -d '\r')"
-            if [ -z "$PID" ]; then
-              echo "::error::Torri Preview RC2 exited after resume"
-              adb logcat -d -b crash | tail -150
-              exit 1
-            fi
-            if adb logcat -d -b crash | grep -q 'Process: app.torri.rc'; then
-              echo "::error::Detected Android runtime crash"
-              adb logcat -d -b crash | tail -150
-              exit 1
-            fi
-            adb exec-out screencap -p > "$RUNNER_TEMP/torri-rc2-android15.png"
-            echo "PASS: signed Torri Preview APK installed, launched and resumed. PID: $PID"
+          # The runner splits 'script' lines into separate shell invocations.
+          # Execute the full script as ONE command to preserve its variables.
+          script: bash .github/scripts/torri-rc2-smoke.sh
 
       - name: Upload actual Android emulator screenshot
         if: success()
