@@ -67,11 +67,16 @@ jobs:
           # Execute the full script as ONE command to preserve its variables.
           script: bash .github/scripts/torri-rc2-smoke.sh
 
-      - name: Upload actual Android emulator screenshot
+      - name: Attach emulator screenshot to PRIVATE draft release
         if: success()
-        continue-on-error: true
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: torri-rc2-android15-screenshot
-          path: ${{ runner.temp }}/torri-rc2-android15.png
-          retention-days: 3
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="v0.21.2-torri-rc2"
+          gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft | grep -qx true
+          PNG="$RUNNER_TEMP/torri-rc2-android15.png"
+          test -s "$PNG"
+          gh release upload "$TAG" "$PNG" -R "$GITHUB_REPOSITORY" --clobber
+          echo "Stored actual Android 15 screenshot with existing RC2 draft release assets."
