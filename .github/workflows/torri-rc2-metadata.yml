@@ -1,0 +1,30 @@
+name: Correct Torri RC2 draft metadata
+
+# One-off metadata correction. Does not build, sign, upload or publish APKs.
+on:
+  push:
+    branches:
+      - torri/upgrade-mihon-0.21.2
+    paths:
+      - .github/workflows/torri-rc2-metadata.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix_draft_title:
+    if: github.repository == 'Tomex777/Torri'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Correct candidate title only when the draft exists
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="v0.21.2-torri-rc2"
+          IS_DRAFT="$(gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft')"
+          test "$IS_DRAFT" = true || { echo "::error::Refusing to modify a published release"; exit 1; }
+          gh release edit "$TAG" -R "$GITHUB_REPOSITORY" \
+            --title 'Torri by Night v0.21.2 RC2 (DRAFT / TEST ONLY)'
+          gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json name,isDraft,isPrerelease,url
