@@ -93,6 +93,16 @@ android {
 
             matchingFallbacks.addAll(commonMatchingFallbacks)
         }
+        // Test candidates must coexist with installed production Torri.
+        // GitHub-hosted builds are not signed using the user's release key.
+        create("rc") {
+            initWith(release)
+
+            applicationIdSuffix = ".rc"
+            versionNameSuffix = "-rc2"
+
+            matchingFallbacks.addAll(commonMatchingFallbacks)
+        }
         create("nightly") {
             initWith(release)
 
