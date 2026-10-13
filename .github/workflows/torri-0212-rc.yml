@@ -15,7 +15,8 @@ permissions:
 
 concurrency:
   group: torri-0212-draft-apk
-  cancel-in-progress: false
+  # Cancel obsolete RC1 and other in-progress test releases.
+  cancel-in-progress: true
 
 jobs:
   draft_apk:
