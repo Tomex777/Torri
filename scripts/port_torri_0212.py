@@ -45,7 +45,7 @@ transform("i18n/src/commonMain/moko-resources/base/strings.xml", strings)
 
 transform(
     "app/src/main/java/eu/kanade/domain/ui/model/AppTheme.kt",
-    lambda s: replace_one(s, "    MONOCHROME(MR.strings.theme_monochrome),", "    MONOCHROME(MR.strings.theme_monochrome),\n    NIGHT(MR.strings.theme_night),"),
+    lambda s: s if "    NIGHT(MR.strings.theme_night)," in s else replace_one(s, "    MONOCHROME(MR.strings.theme_monochrome),", "    MONOCHROME(MR.strings.theme_monochrome),\n    NIGHT(MR.strings.theme_night),"),
 )
 
 
@@ -67,7 +67,7 @@ def theme(s):
             "import eu.kanade.presentation.theme.colorscheme.MonochromeColorScheme",
             "import eu.kanade.presentation.theme.colorscheme.MonochromeColorScheme\nimport eu.kanade.presentation.theme.colorscheme.NightColorScheme",
         )
-    return replace_one(
+    return s if "    AppTheme.NIGHT to NightColorScheme," in s else replace_one(
         s,
         "    AppTheme.MONOCHROME to MonochromeColorScheme,",
         "    AppTheme.MONOCHROME to MonochromeColorScheme,\n    AppTheme.NIGHT to NightColorScheme,",
