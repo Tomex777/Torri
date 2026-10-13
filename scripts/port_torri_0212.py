@@ -61,11 +61,12 @@ transform("app/src/main/java/eu/kanade/domain/ui/UiPreferences.kt", prefs)
 
 
 def theme(s):
-    s = replace_one(
-        s,
-        "import eu.kanade.presentation.theme.colorscheme.MonochromeColorScheme",
-        "import eu.kanade.presentation.theme.colorscheme.MonochromeColorScheme\nimport eu.kanade.presentation.theme.colorscheme.NightColorScheme",
-    )
+    if "import eu.kanade.presentation.theme.colorscheme.NightColorScheme" not in s:
+        s = replace_one(
+            s,
+            "import eu.kanade.presentation.theme.colorscheme.MonochromeColorScheme",
+            "import eu.kanade.presentation.theme.colorscheme.MonochromeColorScheme\nimport eu.kanade.presentation.theme.colorscheme.NightColorScheme",
+        )
     return replace_one(
         s,
         "    AppTheme.MONOCHROME to MonochromeColorScheme,",
