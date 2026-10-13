@@ -45,6 +45,10 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_6
+          # The stock Android 15 AVD asks for ~7.4 GB userdata but the
+          # hosted Linux runner has less free disk after Gradle compilation.
+          disk-size: 2048M
+          ram-size: 2048M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: |
