@@ -11,7 +11,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  # GitHub requires contents:write to access this private repo's draft releases.
+  contents: write
 
 jobs:
   installed_apk:
