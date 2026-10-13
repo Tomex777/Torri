@@ -43,6 +43,7 @@ jobs:
           git restore --source "$TORRI_BASE" -- \
             .github/workflows/build.yml \
             .github/workflows/update_website.yml \
+            .github/workflows/release.yml \
             README.md \
             .idea/icon.svg \
             app/src/debug/res/drawable/ic_launcher_background.xml \
