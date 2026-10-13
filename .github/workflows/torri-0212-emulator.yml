@@ -66,9 +66,10 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: |
-            set -euo pipefail
+            # android-emulator-runner executes this through /usr/bin/sh.
+            set -eu
             APK="$(find app/build/outputs/apk/debug -type f -name '*universal*debug.apk' -print -quit)"
-            if [[ -z "$APK" ]]; then
+            if [ -z "$APK" ]; then
               echo "::error::Universal debug APK not found."
               find app/build/outputs/apk/debug -type f
               exit 1
@@ -78,7 +79,7 @@ jobs:
             adb shell am start -W -n app.torri.dev/eu.kanade.tachiyomi.ui.main.MainActivity
             sleep 20
             PID="$(adb shell pidof app.torri.dev | tr -d '\r')"
-            if [[ -z "$PID" ]]; then
+            if [ -z "$PID" ]; then
               echo "::error::Torri process exited after first launch."
               adb logcat -d -b crash | tail -150
               exit 1
