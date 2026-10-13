@@ -36,6 +36,7 @@ jobs:
         run: git archive --format=zip --output="Torri-source-${GITHUB_SHA}.zip" HEAD
 
       - name: Upload Torri source
+        continue-on-error: true
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -78,6 +79,7 @@ jobs:
         run: ./gradlew assembleRelease
 
       - name: Upload APK
+        continue-on-error: true
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -85,6 +87,7 @@ jobs:
           path: app/build/outputs/apk/release/app-arm64-v8a-release.apk
 
       - name: Upload universal APK
+        continue-on-error: true
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -92,6 +95,7 @@ jobs:
           path: app/build/outputs/apk/release/app-universal-release.apk
 
       - name: Upload mapping
+        continue-on-error: true
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
