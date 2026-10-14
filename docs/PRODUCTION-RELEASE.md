@@ -1,3 +1,23 @@
+# Production upgrade identity correction (2026-10-14)
+
+The last proven production-signed Torri build originated in **Tomex777/Build**, branch
+`torri-compile-runner-20260922`, GitHub Actions run `37137601978`. It had
+`applicationId=app.torri`, `versionCode=10000`, `versionName=1.0.0`,
+and signing certificate SHA-256
+`6b1ab58169e3a8dd4370860d5d03060b035476b43cceaf2bd8da7ca1fe37ab44`.
+
+Torri's Mihon 0.21.2-based upgrade therefore ships as **Torri 1.1.0,
+versionCode 10001**. Prior `0.21.2` / code `38` candidates are NOT
+valid in-place upgrades from the existing 1.0.0 release.
+
+The original four GitHub signing secrets are proven available in **Build**,
+not in Torri. The Build-side continuity probe passed:
+https://github.com/Tomex777/Build/actions/runs/38648349254
+
+Never replace the production certificate, use a temporary key, or uninstall
+existing app data to bypass Android signing/version checks. User backup
+is still required before 0.21.x engine migrations.
+
 # Torri 0.21.2 — production release signing
 
 > **Status:** Torri 0.21.2 code builds and the Android 15 emulator smoke tests

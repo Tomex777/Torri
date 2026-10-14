@@ -37,8 +37,8 @@ android {
     defaultConfig {
         applicationId = "app.torri"
 
-        versionCode = 38
-        versionName = "0.21.2"
+        versionCode = 10001
+        versionName = "1.1.0"
 
         buildConfigField("boolean", "TELEMETRY_INCLUDED", "${Config.includeTelemetry}")
         buildConfigField("boolean", "UPDATER_ENABLED", "${Config.enableUpdater}")
@@ -77,7 +77,10 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
 
-            signingConfig = debug.signingConfig
+            // A Torri-only CI handoff may build unsigned release inputs for
+            // signing by the ORIGINAL protected key in Tomex777/Build.
+            // Never ship those unsigned inputs to end users.
+            signingConfig = if (System.getenv("TORRI_UNSIGNED_HANDOFF") == "true") null else debug.signingConfig
 
             isProfileable = true
 
