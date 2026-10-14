@@ -1,0 +1,54 @@
+name: Torri 1.1.0 unsigned UNIVERSAL signing handoff
+on:
+  push:
+    branches:
+      - ci/torri-v110-universal
+    paths:
+      - .github/workflows/torri-v110-universal-handoff.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unsigned_universal:
+    if: github.repository == 'Tomex777/Torri'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up JDK
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          java-version-file: .github/.java-version
+          distribution: temurin
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+      - name: Build unsigned universal Android release
+        env:
+          TORRI_UNSIGNED_HANDOFF: 'true'
+        run: ./gradlew assembleRelease -Penable-updater
+      - name: Validate and checkpoint unsigned universal APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p signing-handoff/torri-v1.1.0-universal
+          OUT="signing-handoff/torri-v1.1.0-universal"
+          APK="$(find app/build/outputs/apk/release -maxdepth 1 -type f -name '*universal*release*.apk' -print -quit)"
+          test -s "$APK"
+          TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          "$TOOLS/aapt" dump badging "$APK" | grep -E "^package: name='app.torri' versionCode='10001' versionName='1.1.0'"
+          if "$TOOLS/apksigner" verify "$APK" >/dev/null 2>&1; then
+            echo "::error::A handoff must never contain a pre-signed APK"
+            exit 1
+          fi
+          sha256sum "$APK" | awk '{print $1}' > "$OUT/UNSIGNED-SHA256.txt"
+          echo "$GITHUB_SHA" > "$OUT/SOURCE-COMMIT.txt"
+          base64 -w0 "$APK" | split -b 1000000 -d -a 3 - "$OUT/part-"
+          echo "Parts: $(find "$OUT" -name 'part-*' | wc -l)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$OUT"
+          git commit -m "ci: stage unsigned Torri v1.1.0 universal release"
+          git push origin HEAD:ci/torri-v110-universal
