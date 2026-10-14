@@ -1,7 +1,8 @@
 name: Torri stable release (manual, signed)
 
 # Safe staging only. Publishing the GitHub draft remains a separate manual act.
-# Runs from main only, after the v0.21.2 integration has been tested and merged.
+# Reuse existing dedicated TORRI_* or historical release-workflow signing names;
+# certificate fingerprint must still match TORRI_RELEASE_CERT_SHA256.
 on:
   workflow_dispatch:
 
@@ -30,10 +31,10 @@ jobs:
       - name: Validate release identity and signing prerequisites
         shell: bash
         env:
-          TORRI_SIGNING_KEY_BASE64: ${{ secrets.TORRI_SIGNING_KEY_BASE64 }}
-          TORRI_STORE_PASSWORD: ${{ secrets.TORRI_STORE_PASSWORD }}
-          TORRI_KEY_ALIAS: ${{ secrets.TORRI_KEY_ALIAS }}
-          TORRI_KEY_PASSWORD: ${{ secrets.TORRI_KEY_PASSWORD }}
+          TORRI_SIGNING_KEY_BASE64: ${{ secrets.TORRI_SIGNING_KEY_BASE64 || secrets.SIGNING_KEY }}
+          TORRI_STORE_PASSWORD: ${{ secrets.TORRI_STORE_PASSWORD || secrets.KEY_STORE_PASSWORD }}
+          TORRI_KEY_ALIAS: ${{ secrets.TORRI_KEY_ALIAS || secrets.ALIAS }}
+          TORRI_KEY_PASSWORD: ${{ secrets.TORRI_KEY_PASSWORD || secrets.KEY_PASSWORD }}
           TORRI_RELEASE_CERT_SHA256: ${{ secrets.TORRI_RELEASE_CERT_SHA256 }}
         run: |
           set -euo pipefail
@@ -52,9 +53,9 @@ jobs:
         env:
           MIHON_GITHUB_RELEASE: 'true'
           storeFile: ${{ runner.temp }}/torri-production.keystore
-          storePassword: ${{ secrets.TORRI_STORE_PASSWORD }}
-          keyAlias: ${{ secrets.TORRI_KEY_ALIAS }}
-          keyPassword: ${{ secrets.TORRI_KEY_PASSWORD }}
+          storePassword: ${{ secrets.TORRI_STORE_PASSWORD || secrets.KEY_STORE_PASSWORD }}
+          keyAlias: ${{ secrets.TORRI_KEY_ALIAS || secrets.ALIAS }}
+          keyPassword: ${{ secrets.TORRI_KEY_PASSWORD || secrets.KEY_PASSWORD }}
         run: ./gradlew spotlessCheck testDebugUnitTest verifySqlDelightMigration assembleRelease -Penable-updater
 
       - name: Validate production APK identity, signature and checksum
