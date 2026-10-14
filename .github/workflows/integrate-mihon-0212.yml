@@ -1,0 +1,72 @@
+name: Integrate Mihon v0.21.2 into Torri
+
+# One-shot integration. Only runs when this workflow itself is introduced/edited.
+# Never updates main or publishes a release.
+on:
+  push:
+    branches:
+      - torri/upgrade-mihon-0.21.2
+    paths:
+      - .github/workflows/integrate-mihon-0212.yml
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    if: github.repository == 'Tomex777/Torri'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out the full Torri history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Merge the pinned upstream release and restore Torri identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "torri-upstream-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          TORRI_BASE="$(git rev-parse HEAD)"
+          git remote add mihon-upstream https://github.com/mihonapp/mihon.git
+          git fetch --no-tags mihon-upstream refs/tags/v0.21.2
+          git merge --no-ff --no-edit -X theirs FETCH_HEAD || {
+            echo "::error::Upstream merge needs manual conflict resolution."
+            git diff --name-only --diff-filter=U
+            exit 1
+          }
+
+          # Keep user-facing Torri assets, fork CI, and credits. Do NOT restore
+          # the old reader/download/DB/extension implementation.
+          git restore --source "$TORRI_BASE" -- \
+            .github/workflows/build.yml \
+            .github/workflows/update_website.yml \
+            .github/workflows/release.yml \
+            README.md \
+            .idea/icon.svg \
+            app/src/debug/res/drawable/ic_launcher_background.xml \
+            app/src/debug/res/drawable/ic_launcher_foreground.xml \
+            app/src/main/res/drawable/ic_launcher_background.xml \
+            app/src/main/res/drawable/ic_launcher_foreground.xml \
+            app/src/main/res/drawable/ic_launcher_monochrome.xml \
+            app/src/main/res/drawable/ic_torri.xml \
+            app/src/main/res/drawable/ic_torri_splash.xml \
+            app/src/main/res/values/torri_strings.xml \
+            app/src/main/java/eu/kanade/presentation/theme/colorscheme/NightColorScheme.kt
+
+          python3 scripts/port_torri_0212.py
+          git add -A
+          git diff --cached --check
+          git commit -m "chore: preserve Torri branding and Night theme on Mihon v0.21.2"
+
+          test "$(grep -Ec 'applicationId = "app.torri"' app/build.gradle.kts)" -eq 1
+          test "$(grep -Ec 'versionName = "0.21.2"' app/build.gradle.kts)" -eq 1
+          test "$(grep -Ec 'rootProject.name = "Torri"' settings.gradle.kts)" -eq 1
+          test -f app/src/main/java/eu/kanade/presentation/theme/colorscheme/NightColorScheme.kt
+          echo "Upstream: v0.21.2; app ID: app.torri; Night theme: retained."
+
+          # Push exclusively to the integration branch. A separate draft PR
+          # and the existing CI must pass before main can be updated.
+          git push origin HEAD:refs/heads/torri/upgrade-mihon-0.21.2

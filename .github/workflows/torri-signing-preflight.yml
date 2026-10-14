@@ -1,0 +1,49 @@
+name: Torri production signing readiness
+
+# Tests only that the configured production signing identity exists and matches
+# the pinned expected certificate. No APK is published or signed by this job.
+on:
+  push:
+    branches:
+      - torri/upgrade-mihon-0.21.2
+    paths:
+      - .github/workflows/torri-signing-preflight.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  signing_preflight:
+    if: github.repository == 'Tomex777/Torri'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check required production signing secrets and certificate
+        shell: bash
+        env:
+          TORRI_SIGNING_KEY_BASE64: ${{ secrets.TORRI_SIGNING_KEY_BASE64 }}
+          TORRI_STORE_PASSWORD: ${{ secrets.TORRI_STORE_PASSWORD }}
+          TORRI_KEY_ALIAS: ${{ secrets.TORRI_KEY_ALIAS }}
+          TORRI_KEY_PASSWORD: ${{ secrets.TORRI_KEY_PASSWORD }}
+          TORRI_RELEASE_CERT_SHA256: ${{ secrets.TORRI_RELEASE_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          bad=0
+          for var in TORRI_SIGNING_KEY_BASE64 TORRI_STORE_PASSWORD TORRI_KEY_ALIAS TORRI_KEY_PASSWORD TORRI_RELEASE_CERT_SHA256; do
+            if [[ -z "${!var}" ]]; then
+              echo "::error::Missing repository secret $var (required for existing app.torri signing identity)"
+              bad=1
+            fi
+          done
+          if [[ "$bad" == 1 ]]; then exit 1; fi
+          umask 077
+          printf '%s' "$TORRI_SIGNING_KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/torri-production.keystore"
+          test -s "$RUNNER_TEMP/torri-production.keystore"
+          actual="$(keytool -list -v -keystore "$RUNNER_TEMP/torri-production.keystore" -storepass "$TORRI_STORE_PASSWORD" -alias "$TORRI_KEY_ALIAS" | sed -n 's/^[[:space:]]*SHA256: //p' | head -1 | tr -d ':[:space:]' | tr '[:upper:]' '[:lower:]')"
+          expected="$(printf '%s' "$TORRI_RELEASE_CERT_SHA256" | tr -d ':[:space:]' | tr '[:upper:]' '[:lower:]')"
+          if [[ -z "$actual" || "$actual" != "$expected" ]]; then
+            echo "::error::Production signing certificate fingerprint does not match TORRI_RELEASE_CERT_SHA256"
+            exit 1
+          fi
+          echo "PASS: signed production build prerequisites and certificate fingerprint verified. No signing key contents displayed."

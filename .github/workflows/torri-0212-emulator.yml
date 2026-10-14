@@ -1,0 +1,79 @@
+name: Torri v0.21.2 Android startup smoke test
+
+on:
+  push:
+    branches:
+      - torri/upgrade-mihon-0.21.2
+    paths:
+      - .github/workflows/torri-0212-emulator.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android_smoke:
+    if: github.repository == 'Tomex777/Torri' && github.ref == 'refs/heads/torri/upgrade-mihon-0.21.2'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          java-version-file: .github/.java-version
+          distribution: temurin
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+
+      - name: Compile debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Free runner disk space for the Android system image
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Before cleanup:"
+          df -h /
+          # The emulator's Android 15 userdata image alone requires ~7.4 GB
+          # during first boot; SDK/Gradle compilation uses substantial disk.
+          # These tools are unrelated to Android app runtime/emulator boot.
+          sudo rm -rf /usr/share/dotnet /usr/local/share/powershell /opt/hostedtoolcache/CodeQL
+          sudo rm -rf "$ANDROID_HOME/ndk"
+          echo "After cleanup:"
+          df -h /
+
+      - name: Enable KVM access for Android emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install and start Torri on Android 15
+        uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          # The stock Android 15 AVD asks for ~7.4 GB userdata but the
+          # hosted Linux runner has less free disk after Gradle compilation.
+          disk-size: 2048M
+          ram-size: 2048M
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          # All assertions run as one shell process; the action's multiline
+          # 'script' format otherwise executes EACH LINE in a separate sh.
+          script: bash .github/scripts/torri-debug-smoke.sh
+
+      - name: Preserve actual Android 15 screenshot
+        if: success()
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: torri-debug-android15-screenshot
+          path: ${{ runner.temp }}/torri-debug-android15.png
+          retention-days: 3

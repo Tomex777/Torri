@@ -19,7 +19,7 @@ A full-featured Android manga, webtoon, and comics reader built on Mihon's prove
 
 Torri keeps Mihon's reader, source and extension architecture, downloads, library, storage, tracking, backup, and database foundations intact while giving the app its own Night identity.
 
-The current Torri base is pinned to **Mihon v0.20.4** so changes can be reviewed and tested against a known upstream checkpoint.
+The current Torri base is updated to **Mihon v0.21.2** so changes can be reviewed and tested against a known upstream checkpoint.
 
 *Requires Android 8.0 or higher.*
 
