@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - torri/upgrade-mihon-0.21.2
+      - main
     paths:
       - .github/workflows/torri-signing-preflight.yml
   workflow_dispatch:
@@ -27,6 +28,10 @@ jobs:
           TORRI_KEY_ALIAS: ${{ secrets.TORRI_KEY_ALIAS }}
           TORRI_KEY_PASSWORD: ${{ secrets.TORRI_KEY_PASSWORD }}
           TORRI_RELEASE_CERT_SHA256: ${{ secrets.TORRI_RELEASE_CERT_SHA256 }}
+          LEGACY_SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          LEGACY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          LEGACY_KEY_ALIAS: ${{ secrets.ALIAS }}
+          LEGACY_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           set -euo pipefail
           bad=0
@@ -36,6 +41,13 @@ jobs:
               bad=1
             fi
           done
+          # Check if the repository already has its older release-workflow
+          # credentials; this prints only their availability, never content.
+          if [[ -n "$LEGACY_SIGNING_KEY" && -n "$LEGACY_STORE_PASSWORD" && -n "$LEGACY_KEY_ALIAS" && -n "$LEGACY_KEY_PASSWORD" ]]; then
+            echo "::notice::Legacy SIGNING_KEY/KEY_STORE_PASSWORD/ALIAS/KEY_PASSWORD set detected. They must still match the installed Torri certificate."
+          else
+            echo "::notice::No complete legacy release signing-secret set detected."
+          fi
           if [[ "$bad" == 1 ]]; then exit 1; fi
           umask 077
           printf '%s' "$TORRI_SIGNING_KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/torri-production.keystore"
