@@ -1,0 +1,64 @@
+name: Torri 1.1.0 unsigned ARM64 signing handoff
+
+# Publishes NO secret key material. The unsigned APK is staged in Torri's
+# PRIVATE repository as text chunks for the existing Build-side permanent key.
+on:
+  push:
+    branches:
+      - ci/torri-v110-handoff
+    paths:
+      - .github/workflows/torri-v110-unsigned-handoff.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unsigned_arm64:
+    if: github.repository == 'Tomex777/Torri'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    steps:
+      - name: Checkout Torri 1.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+
+      - name: Set up JDK
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          java-version-file: .github/.java-version
+          distribution: temurin
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+
+      - name: Compile UNSIGNED Torri 1.1.0 ARM64 release APK
+        env:
+          TORRI_UNSIGNED_HANDOFF: 'true'
+        run: ./gradlew assembleRelease -Penable-updater
+
+      - name: Confirm unsigned package identity then checkpoint signing input
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p signing-handoff/torri-v1.1.0
+          APK="$(find app/build/outputs/apk/release -maxdepth 1 -type f -name '*arm64-v8a*release*.apk' -print -quit)"
+          test -s "$APK"
+          TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          "$TOOLS/aapt" dump badging "$APK" | grep -E "^package: name='app.torri' versionCode='10001' versionName='1.1.0'"
+          if "$TOOLS/apksigner" verify "$APK" >/dev/null 2>&1; then
+            echo "::error::Signing handoff must NEVER contain a signed APK."
+            exit 1
+          fi
+          sha256sum "$APK" | awk '{print $1}' > signing-handoff/torri-v1.1.0/UNSIGNED-SHA256.txt
+          echo "$GITHUB_SHA" > signing-handoff/torri-v1.1.0/SOURCE-COMMIT.txt
+          # GitHub's API relay can transfer text blobs, not GitHub Actions
+          # secrets. Chunks contain only the UNSIGNED production APK bytes.
+          base64 -w0 "$APK" | split -b 1000000 -d -a 3 - signing-handoff/torri-v1.1.0/part-
+          echo "Base64 chunks: $(find signing-handoff/torri-v1.1.0 -name 'part-*' | wc -l)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add signing-handoff/torri-v1.1.0
+          git commit -m "ci: stage verified Torri v1.1.0 ARM64 unsigned release for permanent signing"
+          git push origin HEAD:ci/torri-v110-handoff
