@@ -1,5 +1,6 @@
 name: Torri production signing readiness
 
+# Accepts either dedicated TORRI_* or historical release-workflow secret names.
 # Tests only that the configured production signing identity exists and matches
 # the pinned expected certificate. No APK is published or signed by this job.
 on:
@@ -23,10 +24,10 @@ jobs:
       - name: Check required production signing secrets and certificate
         shell: bash
         env:
-          TORRI_SIGNING_KEY_BASE64: ${{ secrets.TORRI_SIGNING_KEY_BASE64 }}
-          TORRI_STORE_PASSWORD: ${{ secrets.TORRI_STORE_PASSWORD }}
-          TORRI_KEY_ALIAS: ${{ secrets.TORRI_KEY_ALIAS }}
-          TORRI_KEY_PASSWORD: ${{ secrets.TORRI_KEY_PASSWORD }}
+          TORRI_SIGNING_KEY_BASE64: ${{ secrets.TORRI_SIGNING_KEY_BASE64 || secrets.SIGNING_KEY }}
+          TORRI_STORE_PASSWORD: ${{ secrets.TORRI_STORE_PASSWORD || secrets.KEY_STORE_PASSWORD }}
+          TORRI_KEY_ALIAS: ${{ secrets.TORRI_KEY_ALIAS || secrets.ALIAS }}
+          TORRI_KEY_PASSWORD: ${{ secrets.TORRI_KEY_PASSWORD || secrets.KEY_PASSWORD }}
           TORRI_RELEASE_CERT_SHA256: ${{ secrets.TORRI_RELEASE_CERT_SHA256 }}
           LEGACY_SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           LEGACY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
