@@ -4,6 +4,11 @@ name: Torri stable release (manual, signed)
 # Reuse existing dedicated TORRI_* or historical release-workflow signing names;
 # certificate fingerprint must still match TORRI_RELEASE_CERT_SHA256.
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/torri-stable-release.yml
   workflow_dispatch:
 
 permissions:
