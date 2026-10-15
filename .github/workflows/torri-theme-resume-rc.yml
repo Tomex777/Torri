@@ -1,0 +1,91 @@
+name: Torri Theme Studio & Continue Reading installable RC
+
+# One-time draft RC build. GitHub Actions artifact quota is exhausted, so save
+# installable APKs to a private DRAFT release instead of upload-artifact.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/torri-theme-resume-rc.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  signed_test_apk:
+    if: github.repository == 'Tomex777/Torri' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up JDK
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          java-version-file: .github/.java-version
+          distribution: temurin
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+      - name: Verify correct Torri sources and production package isolation
+        run: |
+          set -euo pipefail
+          grep -Fq 'applicationId = "app.torri"' app/build.gradle.kts
+          grep -Fq 'applicationIdSuffix = ".rc"' app/build.gradle.kts
+          grep -Fq 'versionName = "1.1.0"' app/build.gradle.kts
+          grep -Fq 'AppTheme.CUSTOM' app/src/main/java/eu/kanade/presentation/theme/TachiyomiTheme.kt
+          grep -Fq 'LibraryResumePrompt' app/src/main/java/eu/kanade/tachiyomi/ui/library/LibraryTab.kt
+          ! grep -R 'torri_offline_pack_ready' app/src/main/java
+      - name: Compile and sign parallel-install RC
+        run: ./gradlew spotlessCheck testDebugUnitTest verifySqlDelightMigration assembleRc
+      - name: Verify signed APKs and generate checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp app/build/outputs/apk/rc/app-arm64-v8a-rc.apk dist/torri-v1.1.0-theme-resume-rc1-arm64.apk
+          cp app/build/outputs/apk/rc/app-universal-rc.apk dist/torri-v1.1.0-theme-resume-rc1-universal.apk
+          TOOL_DIR="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
+          for apk in dist/*.apk; do
+            "$TOOL_DIR/aapt" dump badging "$apk" | tee /tmp/torri-rc-badging.txt
+            grep -Eq "^package: name='app.torri.rc' versionCode='10001' versionName='1.1.0-rc2'" /tmp/torri-rc-badging.txt
+            "$TOOL_DIR/apksigner" verify --verbose --print-certs "$apk"
+            sha256sum "$apk" >> dist/SHA256SUMS.txt
+          done
+      - name: Create private TEST-ONLY draft release with signed APKs
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="v1.1.0-torri-theme-resume-rc1"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::Draft RC already exists; refusing to replace an existing signing identity."
+            exit 1
+          fi
+          cat > dist/RELEASE-NOTES.txt <<'EOF'
+          Torri by NIGHT 1.1.0 Theme Gallery and Continue Reading — RC1
+
+          Includes the new Theme Gallery, six extra palettes, Torri's own
+          draggable color picker with hex entry and light/dark background
+          settings, and a dismissible 15-second library Continue shortcut.
+
+          Offline pack/readiness functionality is NOT included.
+
+          TEST BUILD ONLY — package app.torri.rc; installs next to app.torri.
+          APK has been signed with the CI build's TEST certificate, not the
+          existing permanent production signing certificate. Do not use as
+          an update to your installed production Torri. Existing RC builds
+          signed with another certificate may need uninstalling first.
+
+          Production signing is blocked until Torri's protected signing key
+          and pinned certificate fingerprint are available in CI.
+          EOF
+          gh release create "$TAG" --target "$GITHUB_SHA" --draft --prerelease \
+            --title "Torri by NIGHT 1.1.0 Theme & Resume RC1 (TEST ONLY)" \
+            --notes-file dist/RELEASE-NOTES.txt \
+            dist/torri-v1.1.0-theme-resume-rc1-arm64.apk \
+            dist/torri-v1.1.0-theme-resume-rc1-universal.apk \
+            dist/SHA256SUMS.txt
+          gh release view "$TAG" --json url,name,isDraft,isPrerelease
