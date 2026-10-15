@@ -26,6 +26,7 @@ enum class AppTheme(val titleRes: StringResource?) {
     DRACULA(MR.strings.theme_dracula),
     ROSE_PINE(MR.strings.theme_rose_pine),
     SOLARIZED(MR.strings.theme_solarized),
+    CUSTOM(MR.strings.theme_custom),
 
     // Deprecated
     DARK_BLUE(null),
