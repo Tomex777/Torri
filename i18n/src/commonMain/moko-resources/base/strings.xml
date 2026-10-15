@@ -239,6 +239,12 @@
     <string name="theme_midnightdusk">Midnight Dusk</string>
     <string name="theme_monochrome">Monochrome</string>
     <string name="theme_night">Night</string>
+    <string name="theme_obsidian_gold">Obsidian Gold</string>
+    <string name="theme_parchment">Parchment</string>
+    <string name="theme_ember">Ember</string>
+    <string name="theme_dracula">Dracula</string>
+    <string name="theme_rose_pine">Rosé Pine</string>
+    <string name="theme_solarized">Solarized</string>
     <string name="theme_nord">Nord</string>
     <string name="theme_strawberrydaiquiri">Strawberry Daiquiri</string>
     <string name="theme_tako">Tako</string>
