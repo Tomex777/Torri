@@ -38,8 +38,8 @@ import mihon.app.di.appGraph
 fun TachiyomiTheme(
     appTheme: AppTheme? = null,
     amoled: Boolean? = null,
-    content: @Composable () -> Unit,
     previewDark: Boolean? = null,
+    content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
     val uiPreferences = remember { context.appGraph.uiPreferences }
