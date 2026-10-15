@@ -22,7 +22,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -93,10 +92,8 @@ class AppThemeStudioScreen : Screen() {
         )
         AndroidColor.colorToHSV(previewColor.toArgb(), hsv)
 
-        fun updateHsv(index: Int, value: Float) {
-            val updated = hsv.copyOf()
-            updated[index] = value
-            val rgb = AndroidColor.HSVToColor(updated) and 0xFFFFFF
+        fun updateHsv(hue: Float, saturation: Float, brightness: Float) {
+            val rgb = AndroidColor.HSVToColor(floatArrayOf(hue, saturation, brightness)) and 0xFFFFFF
             updateSelected("#${rgb.toString(16).padStart(6, '0').uppercase()}")
         }
 
@@ -199,23 +196,12 @@ class AppThemeStudioScreen : Screen() {
                     },
                 )
 
-                Text(stringResource(MR.strings.torri_theme_hue))
-                Slider(
-                    value = hsv[0],
-                    onValueChange = { updateHsv(0, it) },
-                    valueRange = 0f..359f,
-                )
-                Text(stringResource(MR.strings.torri_theme_saturation))
-                Slider(
-                    value = hsv[1],
-                    onValueChange = { updateHsv(1, it) },
-                    valueRange = 0f..1f,
-                )
-                Text(stringResource(MR.strings.torri_theme_brightness))
-                Slider(
-                    value = hsv[2],
-                    onValueChange = { updateHsv(2, it) },
-                    valueRange = 0f..1f,
+                TorriColorPicker(
+                    hue = hsv[0],
+                    saturation = hsv[1],
+                    brightness = hsv[2],
+                    onHsvChanged = ::updateHsv,
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 Row(
