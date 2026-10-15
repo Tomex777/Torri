@@ -6,6 +6,7 @@ on:
       - preview/torri-actual-ui-screens
     paths:
       - .github/workflows/torri-ui-preview-capture.yml
+      - .github/scripts/torri-capture-ui.sh
   workflow_dispatch:
 
 permissions:
@@ -54,9 +55,10 @@ jobs:
         run: |
           set -euo pipefail
           test -s docs/screenshots/torri-actual-theme-studio.png
+          test -s docs/screenshots/torri-actual-theme-studio-picker.png
           test -s docs/screenshots/torri-continue-component-preview.png
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -f docs/screenshots/torri-actual-theme-studio.png docs/screenshots/torri-continue-component-preview.png
+          git add -f docs/screenshots/torri-actual-theme-studio.png docs/screenshots/torri-actual-theme-studio-picker.png docs/screenshots/torri-continue-component-preview.png
           git commit -m 'docs: Android 15 Compose screenshots for theme studio and continue'
           git push origin HEAD:preview/torri-actual-ui-screens
