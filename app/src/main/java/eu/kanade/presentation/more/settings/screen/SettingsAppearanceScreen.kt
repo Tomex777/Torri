@@ -1,7 +1,6 @@
 package eu.kanade.presentation.more.settings.screen
 
 import android.app.Activity
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
@@ -16,8 +15,8 @@ import eu.kanade.domain.ui.model.ThemeMode
 import eu.kanade.domain.ui.model.setAppCompatDelegateThemeMode
 import eu.kanade.presentation.more.settings.Preference
 import eu.kanade.presentation.more.settings.screen.appearance.AppLanguageScreen
+import eu.kanade.presentation.more.settings.screen.appearance.AppThemeGalleryScreen
 import eu.kanade.presentation.more.settings.widget.AppThemeModePreferenceWidget
-import eu.kanade.presentation.more.settings.widget.AppThemePreferenceWidget
 import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
@@ -54,11 +53,8 @@ object SettingsAppearanceScreen : SearchableSettings {
         val themeModePref = uiPreferences.themeMode
         val themeMode by themeModePref.collectAsState()
 
-        val appThemePref = uiPreferences.appTheme
-        val appTheme by appThemePref.collectAsState()
-
+        val navigator = LocalNavigator.currentOrThrow
         val amoledPref = uiPreferences.themeDarkAmoled
-        val amoled by amoledPref.collectAsState()
 
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.pref_category_theme),
@@ -66,22 +62,19 @@ object SettingsAppearanceScreen : SearchableSettings {
                 Preference.PreferenceItem.CustomPreference(
                     title = stringResource(MR.strings.pref_app_theme),
                 ) {
-                    Column {
-                        AppThemeModePreferenceWidget(
-                            value = themeMode,
-                            onItemClick = {
-                                themeModePref.set(it)
-                                setAppCompatDelegateThemeMode(it)
-                            },
-                        )
-
-                        AppThemePreferenceWidget(
-                            value = appTheme,
-                            amoled = amoled,
-                            onItemClick = { appThemePref.set(it) },
-                        )
-                    }
+                    AppThemeModePreferenceWidget(
+                        value = themeMode,
+                        onItemClick = {
+                            themeModePref.set(it)
+                            setAppCompatDelegateThemeMode(it)
+                        },
+                    )
                 },
+                Preference.PreferenceItem.TextPreference(
+                    title = stringResource(MR.strings.torri_theme_gallery),
+                    subtitle = stringResource(MR.strings.torri_theme_gallery_description),
+                    onClick = { navigator.push(AppThemeGalleryScreen()) },
+                ),
                 Preference.PreferenceItem.SwitchPreference(
                     preference = amoledPref,
                     title = stringResource(MR.strings.pref_dark_theme_pure_black),
