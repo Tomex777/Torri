@@ -263,6 +263,11 @@
     <string name="torri_theme_reset">Reset colors</string>
     <string name="torri_theme_customize">Customize</string>
     <string name="torri_theme_preview">Live preview</string>
+    <string name="torri_theme_color_plane">Choose a color</string>
+    <string name="torri_theme_picker_hint">Drag the circle to fine-tune your color.</string>
+    <string name="torri_resume_title">Continue where you left off</string>
+    <string name="torri_resume_hint">Tap to reopen your last chapter</string>
+    <string name="torri_resume_dismiss">Dismiss reading shortcut</string>
     <string name="theme_nord">Nord</string>
     <string name="theme_strawberrydaiquiri">Strawberry Daiquiri</string>
     <string name="theme_tako">Tako</string>
