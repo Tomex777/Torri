@@ -60,7 +60,9 @@ import tachiyomi.domain.category.model.Category
 import tachiyomi.domain.chapter.interactor.GetBookmarkedChaptersByMangaId
 import tachiyomi.domain.chapter.interactor.GetChaptersByMangaId
 import tachiyomi.domain.chapter.model.Chapter
+import tachiyomi.domain.history.interactor.GetHistory
 import tachiyomi.domain.history.interactor.GetNextChapters
+import tachiyomi.domain.history.model.HistoryWithRelations
 import tachiyomi.domain.library.model.LibraryDisplayMode
 import tachiyomi.domain.library.model.LibraryManga
 import tachiyomi.domain.library.model.LibrarySort
@@ -86,6 +88,7 @@ class LibraryViewModel(
     private val getCategories: GetCategories,
     private val getTracksPerManga: GetTracksPerManga,
     private val getNextChapters: GetNextChapters,
+    private val getHistory: GetHistory,
     private val getChaptersByMangaId: GetChaptersByMangaId,
     private val getBookmarkedChaptersByMangaId: GetBookmarkedChaptersByMangaId,
     private val setReadStatus: SetReadStatus,
@@ -99,6 +102,11 @@ class LibraryViewModel(
     private val downloadCache: DownloadCache,
     private val trackerManager: TrackerManager,
 ) : ViewModel() {
+
+    /** Last opened chapter from the existing reading history, not a new progress tracker. */
+    val lastReadChapter: StateFlow<HistoryWithRelations?> = getHistory.subscribe("")
+        .map { history -> history.filter { it.readAt != null }.maxByOrNull { it.readAt!! } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     private val subscriberGate = SubscriberGate()
 

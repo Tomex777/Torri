@@ -10,6 +10,9 @@ import androidx.compose.ui.platform.LocalContext
 import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.presentation.theme.colorscheme.BaseColorScheme
 import eu.kanade.presentation.theme.colorscheme.CatppuccinColorScheme
+import eu.kanade.presentation.theme.colorscheme.CustomColorScheme
+import eu.kanade.presentation.theme.colorscheme.DraculaColorScheme
+import eu.kanade.presentation.theme.colorscheme.EmberColorScheme
 import eu.kanade.presentation.theme.colorscheme.GreenAppleColorScheme
 import eu.kanade.presentation.theme.colorscheme.LavenderColorScheme
 import eu.kanade.presentation.theme.colorscheme.MidnightDuskColorScheme
@@ -17,6 +20,10 @@ import eu.kanade.presentation.theme.colorscheme.MonetColorScheme
 import eu.kanade.presentation.theme.colorscheme.MonochromeColorScheme
 import eu.kanade.presentation.theme.colorscheme.NightColorScheme
 import eu.kanade.presentation.theme.colorscheme.NordColorScheme
+import eu.kanade.presentation.theme.colorscheme.ObsidianGoldColorScheme
+import eu.kanade.presentation.theme.colorscheme.ParchmentColorScheme
+import eu.kanade.presentation.theme.colorscheme.RosePineColorScheme
+import eu.kanade.presentation.theme.colorscheme.SolarizedColorScheme
 import eu.kanade.presentation.theme.colorscheme.StrawberryColorScheme
 import eu.kanade.presentation.theme.colorscheme.TachiyomiColorScheme
 import eu.kanade.presentation.theme.colorscheme.TakoColorScheme
@@ -31,6 +38,7 @@ import mihon.app.di.appGraph
 fun TachiyomiTheme(
     appTheme: AppTheme? = null,
     amoled: Boolean? = null,
+    previewDark: Boolean? = null,
     content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
@@ -39,6 +47,10 @@ fun TachiyomiTheme(
         appTheme = appTheme ?: uiPreferences.appTheme.get(),
         isAmoled = amoled ?: uiPreferences.themeDarkAmoled.get(),
         content = content,
+        previewDark = previewDark,
+        customAccent = uiPreferences.customThemeAccent.get(),
+        customDarkBackground = uiPreferences.customThemeDarkBackground.get(),
+        customLightBackground = uiPreferences.customThemeLightBackground.get(),
     )
 }
 
@@ -47,23 +59,34 @@ fun TachiyomiPreviewTheme(
     appTheme: AppTheme = AppTheme.DEFAULT,
     isAmoled: Boolean = false,
     content: @Composable () -> Unit,
-) = BaseTachiyomiTheme(appTheme, isAmoled, content)
+) = BaseTachiyomiTheme(
+    appTheme = appTheme,
+    isAmoled = isAmoled,
+    content = content,
+)
 
 @Composable
 private fun BaseTachiyomiTheme(
     appTheme: AppTheme,
     isAmoled: Boolean,
     content: @Composable () -> Unit,
+    previewDark: Boolean? = null,
+    customAccent: String = CustomColorScheme.DEFAULT_ACCENT,
+    customDarkBackground: String = CustomColorScheme.DEFAULT_DARK_BACKGROUND,
+    customLightBackground: String = CustomColorScheme.DEFAULT_LIGHT_BACKGROUND,
 ) {
     val context = LocalContext.current
-    val isDark = isSystemInDarkTheme()
+    val isDark = previewDark ?: isSystemInDarkTheme()
     MaterialExpressiveTheme(
-        colorScheme = remember(appTheme, isDark, isAmoled) {
+        colorScheme = remember(appTheme, isDark, isAmoled, customAccent, customDarkBackground, customLightBackground) {
             getThemeColorScheme(
                 context = context,
                 appTheme = appTheme,
                 isDark = isDark,
                 isAmoled = isAmoled,
+                customAccent = customAccent,
+                customDarkBackground = customDarkBackground,
+                customLightBackground = customLightBackground,
             )
         },
         content = content,
@@ -75,7 +98,19 @@ private fun getThemeColorScheme(
     appTheme: AppTheme,
     isDark: Boolean,
     isAmoled: Boolean,
+    customAccent: String,
+    customDarkBackground: String,
+    customLightBackground: String,
 ): ColorScheme {
+    if (appTheme == AppTheme.CUSTOM) {
+        return CustomColorScheme.colorScheme(
+            isDark = isDark,
+            isAmoled = isAmoled,
+            accentHex = customAccent,
+            darkBackgroundHex = customDarkBackground,
+            lightBackgroundHex = customLightBackground,
+        )
+    }
     val colorScheme = if (appTheme == AppTheme.MONET) {
         MonetColorScheme(context)
     } else {
@@ -97,6 +132,12 @@ private val colorSchemes: Map<AppTheme, BaseColorScheme> = mapOf(
     AppTheme.MIDNIGHT_DUSK to MidnightDuskColorScheme,
     AppTheme.MONOCHROME to MonochromeColorScheme,
     AppTheme.NIGHT to NightColorScheme,
+    AppTheme.OBSIDIAN_GOLD to ObsidianGoldColorScheme,
+    AppTheme.PARCHMENT to ParchmentColorScheme,
+    AppTheme.EMBER to EmberColorScheme,
+    AppTheme.DRACULA to DraculaColorScheme,
+    AppTheme.ROSE_PINE to RosePineColorScheme,
+    AppTheme.SOLARIZED to SolarizedColorScheme,
     AppTheme.NORD to NordColorScheme,
     AppTheme.STRAWBERRY_DAIQUIRI to StrawberryColorScheme,
     AppTheme.TAKO to TakoColorScheme,

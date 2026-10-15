@@ -26,6 +26,10 @@ class UiPreferences(
         AppTheme.NIGHT,
     )
 
+    val customThemeAccent = preferenceStore.getString("torri_custom_accent", "#FF5C8A")
+    val customThemeDarkBackground = preferenceStore.getString("torri_custom_dark_background", "#0D0B0E")
+    val customThemeLightBackground = preferenceStore.getString("torri_custom_light_background", "#FFF8FA")
+
     val themeDarkAmoled: Preference<Boolean> = preferenceStore.getBoolean("pref_theme_dark_amoled_key", false)
 
     val relativeTime: Preference<Boolean> = preferenceStore.getBoolean("relative_time_v2", true)
