@@ -106,7 +106,7 @@ class LibraryViewModel(
     /** Last opened chapter from the existing reading history, not a new progress tracker. */
     val lastReadChapter: StateFlow<HistoryWithRelations?> = getHistory.subscribe("")
         .map { history -> history.filter { it.readAt != null }.maxByOrNull { it.readAt!! } }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5.seconds), null)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     private val subscriberGate = SubscriberGate()
 
