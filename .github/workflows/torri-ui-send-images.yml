@@ -1,0 +1,29 @@
+name: Show Torri Android screenshots
+
+on:
+  push:
+    branches:
+      - preview/torri-actual-ui-screens
+    paths:
+      - .github/workflows/torri-ui-send-images.yml
+
+permissions:
+  contents: read
+
+jobs:
+  screenshot_images:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout captured Android UI images
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Emit screenshots in capture logs for visual review
+        run: |
+          set -euo pipefail
+          echo 'BEGIN_TORRI_STUDIO_PNG'
+          base64 -w 0 docs/screenshots/torri-actual-theme-studio.png
+          echo
+          echo 'END_TORRI_STUDIO_PNG'
+          echo 'BEGIN_TORRI_CONTINUE_PNG'
+          base64 -w 0 docs/screenshots/torri-continue-component-preview.png
+          echo
+          echo 'END_TORRI_CONTINUE_PNG'
