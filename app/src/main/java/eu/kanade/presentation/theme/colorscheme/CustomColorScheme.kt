@@ -1,9 +1,9 @@
 package eu.kanade.presentation.theme.colorscheme
 
-import android.graphics.Color as AndroidColor
 import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import android.graphics.Color as AndroidColor
 
 /**
  * Torri's user-editable palette. Only valid opaque RGB colors are accepted;
@@ -92,8 +92,11 @@ internal object CustomColorScheme {
         val red = color.red.toDouble()
         val green = color.green.toDouble()
         val blue = color.blue.toDouble()
-        fun linear(channel: Double) = if (channel <= 0.04045) channel / 12.92 else
+        fun linear(channel: Double) = if (channel <= 0.04045) {
+            channel / 12.92
+        } else {
             Math.pow((channel + 0.055) / 1.055, 2.4)
+        }
         val brightness = 0.2126 * linear(red) + 0.7152 * linear(green) + 0.0722 * linear(blue)
         return if (brightness > 0.179) Color(0xFF161217) else Color.White
     }
