@@ -27,4 +27,8 @@ capture() {
 }
 
 capture studio docs/screenshots/torri-actual-theme-studio.png
+adb shell input swipe 520 1940 520 590 620
+sleep 3
+adb exec-out screencap -p > docs/screenshots/torri-actual-theme-studio-picker.png
+test -s docs/screenshots/torri-actual-theme-studio-picker.png
 capture continue docs/screenshots/torri-continue-component-preview.png
