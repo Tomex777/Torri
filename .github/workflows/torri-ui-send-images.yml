@@ -23,6 +23,10 @@ jobs:
           base64 -w 0 docs/screenshots/torri-actual-theme-studio.png
           echo
           echo 'END_TORRI_STUDIO_PNG'
+          echo 'BEGIN_TORRI_PICKER_PNG'
+          base64 -w 0 docs/screenshots/torri-actual-theme-studio-picker.png
+          echo
+          echo 'END_TORRI_PICKER_PNG'
           echo 'BEGIN_TORRI_CONTINUE_PNG'
           base64 -w 0 docs/screenshots/torri-continue-component-preview.png
           echo
