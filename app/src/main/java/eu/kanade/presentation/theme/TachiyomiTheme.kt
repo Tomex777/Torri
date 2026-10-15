@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.presentation.theme.colorscheme.BaseColorScheme
 import eu.kanade.presentation.theme.colorscheme.CatppuccinColorScheme
+import eu.kanade.presentation.theme.colorscheme.CustomColorScheme
 import eu.kanade.presentation.theme.colorscheme.DraculaColorScheme
 import eu.kanade.presentation.theme.colorscheme.EmberColorScheme
 import eu.kanade.presentation.theme.colorscheme.GreenAppleColorScheme
@@ -38,6 +39,7 @@ fun TachiyomiTheme(
     appTheme: AppTheme? = null,
     amoled: Boolean? = null,
     content: @Composable () -> Unit,
+    previewDark: Boolean? = null,
 ) {
     val context = LocalContext.current
     val uiPreferences = remember { context.appGraph.uiPreferences }
@@ -45,6 +47,10 @@ fun TachiyomiTheme(
         appTheme = appTheme ?: uiPreferences.appTheme.get(),
         isAmoled = amoled ?: uiPreferences.themeDarkAmoled.get(),
         content = content,
+        previewDark = previewDark,
+        customAccent = uiPreferences.customThemeAccent.get(),
+        customDarkBackground = uiPreferences.customThemeDarkBackground.get(),
+        customLightBackground = uiPreferences.customThemeLightBackground.get(),
     )
 }
 
@@ -53,23 +59,34 @@ fun TachiyomiPreviewTheme(
     appTheme: AppTheme = AppTheme.DEFAULT,
     isAmoled: Boolean = false,
     content: @Composable () -> Unit,
-) = BaseTachiyomiTheme(appTheme, isAmoled, content)
+) = BaseTachiyomiTheme(
+    appTheme = appTheme,
+    isAmoled = isAmoled,
+    content = content,
+)
 
 @Composable
 private fun BaseTachiyomiTheme(
     appTheme: AppTheme,
     isAmoled: Boolean,
     content: @Composable () -> Unit,
+    previewDark: Boolean? = null,
+    customAccent: String = CustomColorScheme.DEFAULT_ACCENT,
+    customDarkBackground: String = CustomColorScheme.DEFAULT_DARK_BACKGROUND,
+    customLightBackground: String = CustomColorScheme.DEFAULT_LIGHT_BACKGROUND,
 ) {
     val context = LocalContext.current
-    val isDark = isSystemInDarkTheme()
+    val isDark = previewDark ?: isSystemInDarkTheme()
     MaterialExpressiveTheme(
-        colorScheme = remember(appTheme, isDark, isAmoled) {
+        colorScheme = remember(appTheme, isDark, isAmoled, customAccent, customDarkBackground, customLightBackground) {
             getThemeColorScheme(
                 context = context,
                 appTheme = appTheme,
                 isDark = isDark,
                 isAmoled = isAmoled,
+                customAccent = customAccent,
+                customDarkBackground = customDarkBackground,
+                customLightBackground = customLightBackground,
             )
         },
         content = content,
@@ -81,7 +98,19 @@ private fun getThemeColorScheme(
     appTheme: AppTheme,
     isDark: Boolean,
     isAmoled: Boolean,
+    customAccent: String,
+    customDarkBackground: String,
+    customLightBackground: String,
 ): ColorScheme {
+    if (appTheme == AppTheme.CUSTOM) {
+        return CustomColorScheme.colorScheme(
+            isDark = isDark,
+            isAmoled = isAmoled,
+            accentHex = customAccent,
+            darkBackgroundHex = customDarkBackground,
+            lightBackgroundHex = customLightBackground,
+        )
+    }
     val colorScheme = if (appTheme == AppTheme.MONET) {
         MonetColorScheme(context)
     } else {
