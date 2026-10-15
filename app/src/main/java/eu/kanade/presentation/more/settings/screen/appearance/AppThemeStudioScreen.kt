@@ -1,7 +1,6 @@
 package eu.kanade.presentation.more.settings.screen.appearance
 
 import android.app.Activity
-import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,8 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
@@ -51,6 +50,7 @@ import mihon.app.di.appGraph
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.i18n.stringResource
+import android.graphics.Color as AndroidColor
 
 /**
  * Edit three independent colors, preview day/night, and apply all values atomically.
@@ -168,7 +168,10 @@ class AppThemeStudioScreen : Screen() {
                     ).forEachIndexed { index, title ->
                         FilterChip(
                             selected = editing == index,
-                            onClick = { editing = index },
+                            onClick = {
+                                editing = index
+                                if (index != 0) previewDark = index == 1
+                            },
                             label = { Text(title) },
                         )
                     }
