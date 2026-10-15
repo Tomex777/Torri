@@ -9,6 +9,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.presentation.theme.colorscheme.BaseColorScheme
+import eu.kanade.presentation.theme.colorscheme.EmberColorScheme
+import eu.kanade.presentation.theme.colorscheme.DraculaColorScheme
+import eu.kanade.presentation.theme.colorscheme.ObsidianGoldColorScheme
+import eu.kanade.presentation.theme.colorscheme.ParchmentColorScheme
+import eu.kanade.presentation.theme.colorscheme.RosePineColorScheme
+import eu.kanade.presentation.theme.colorscheme.SolarizedColorScheme
 import eu.kanade.presentation.theme.colorscheme.CatppuccinColorScheme
 import eu.kanade.presentation.theme.colorscheme.GreenAppleColorScheme
 import eu.kanade.presentation.theme.colorscheme.LavenderColorScheme
@@ -97,6 +103,12 @@ private val colorSchemes: Map<AppTheme, BaseColorScheme> = mapOf(
     AppTheme.MIDNIGHT_DUSK to MidnightDuskColorScheme,
     AppTheme.MONOCHROME to MonochromeColorScheme,
     AppTheme.NIGHT to NightColorScheme,
+    AppTheme.OBSIDIAN_GOLD to ObsidianGoldColorScheme,
+    AppTheme.PARCHMENT to ParchmentColorScheme,
+    AppTheme.EMBER to EmberColorScheme,
+    AppTheme.DRACULA to DraculaColorScheme,
+    AppTheme.ROSE_PINE to RosePineColorScheme,
+    AppTheme.SOLARIZED to SolarizedColorScheme,
     AppTheme.NORD to NordColorScheme,
     AppTheme.STRAWBERRY_DAIQUIRI to StrawberryColorScheme,
     AppTheme.TAKO to TakoColorScheme,
