@@ -9,13 +9,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.presentation.theme.colorscheme.BaseColorScheme
-import eu.kanade.presentation.theme.colorscheme.EmberColorScheme
-import eu.kanade.presentation.theme.colorscheme.DraculaColorScheme
-import eu.kanade.presentation.theme.colorscheme.ObsidianGoldColorScheme
-import eu.kanade.presentation.theme.colorscheme.ParchmentColorScheme
-import eu.kanade.presentation.theme.colorscheme.RosePineColorScheme
-import eu.kanade.presentation.theme.colorscheme.SolarizedColorScheme
 import eu.kanade.presentation.theme.colorscheme.CatppuccinColorScheme
+import eu.kanade.presentation.theme.colorscheme.DraculaColorScheme
+import eu.kanade.presentation.theme.colorscheme.EmberColorScheme
 import eu.kanade.presentation.theme.colorscheme.GreenAppleColorScheme
 import eu.kanade.presentation.theme.colorscheme.LavenderColorScheme
 import eu.kanade.presentation.theme.colorscheme.MidnightDuskColorScheme
@@ -23,6 +19,10 @@ import eu.kanade.presentation.theme.colorscheme.MonetColorScheme
 import eu.kanade.presentation.theme.colorscheme.MonochromeColorScheme
 import eu.kanade.presentation.theme.colorscheme.NightColorScheme
 import eu.kanade.presentation.theme.colorscheme.NordColorScheme
+import eu.kanade.presentation.theme.colorscheme.ObsidianGoldColorScheme
+import eu.kanade.presentation.theme.colorscheme.ParchmentColorScheme
+import eu.kanade.presentation.theme.colorscheme.RosePineColorScheme
+import eu.kanade.presentation.theme.colorscheme.SolarizedColorScheme
 import eu.kanade.presentation.theme.colorscheme.StrawberryColorScheme
 import eu.kanade.presentation.theme.colorscheme.TachiyomiColorScheme
 import eu.kanade.presentation.theme.colorscheme.TakoColorScheme
