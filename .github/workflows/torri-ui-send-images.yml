@@ -28,8 +28,8 @@ jobs:
           }
           for name, source in screens.items():
               im = Image.open(source).convert("RGB")
-              im.thumbnail((500, 900))
-              im.save("/tmp/torri_" + name + ".jpg", "JPEG", quality=48, optimize=True, subsampling=0)
+              im.thumbnail((420, 780))
+              im.save("/tmp/torri_" + name + ".jpg", "JPEG", quality=32, optimize=True, subsampling=2)
               print(name, im.size)
           PY
       - name: Emit real captured screenshots in compact form
