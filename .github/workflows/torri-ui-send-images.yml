@@ -32,6 +32,16 @@ jobs:
               im.save("/tmp/torri_" + name + ".jpg", "JPEG", quality=30, optimize=True, subsampling=2)
               print(name, im.size)
           PY
+      - name: Publish screenshot image files
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        continue-on-error: true
+        with:
+          name: torri-android-ui-images
+          path: |
+            /tmp/torri_studio.jpg
+            /tmp/torri_picker.jpg
+            /tmp/torri_continue.jpg
+          retention-days: 1
       - name: Package all three real screenshots into one archive
         run: |
           tar -czf /tmp/torri-three-images.tgz -C /tmp torri_studio.jpg torri_picker.jpg torri_continue.jpg
