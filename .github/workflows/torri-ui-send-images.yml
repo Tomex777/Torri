@@ -28,16 +28,14 @@ jobs:
           }
           for name, source in screens.items():
               im = Image.open(source).convert("RGB")
-              im.thumbnail((420, 780))
-              im.save("/tmp/torri_" + name + ".jpg", "JPEG", quality=32, optimize=True, subsampling=2)
+              im.thumbnail((340, 760))
+              im.save("/tmp/torri_" + name + ".jpg", "JPEG", quality=30, optimize=True, subsampling=2)
               print(name, im.size)
           PY
-      - name: Emit real captured screenshots in compact form
+      - name: Package all three real screenshots into one archive
         run: |
-          set -euo pipefail
-          for name in studio picker continue; do
-            echo "START_${name}_JPEG"
-            base64 -w 0 "/tmp/torri_${name}.jpg"
-            echo
-            echo "END_${name}_JPEG"
-          done
+          tar -czf /tmp/torri-three-images.tgz -C /tmp torri_studio.jpg torri_picker.jpg torri_continue.jpg
+          echo 'START_TORRI_ARCHIVE'
+          base64 -w 0 /tmp/torri-three-images.tgz
+          echo
+          echo 'END_TORRI_ARCHIVE'
