@@ -16,18 +16,28 @@ jobs:
     steps:
       - name: Checkout captured Android UI images
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Emit screenshots in capture logs for visual review
+      - name: Prepare small real screenshot JPEGs for chat
+        run: |
+          python3 -m pip install --quiet pillow
+          python3 - <<'PY'
+          from PIL import Image
+          screens = {
+              "studio": "docs/screenshots/torri-actual-theme-studio.png",
+              "picker": "docs/screenshots/torri-actual-theme-studio-picker.png",
+              "continue": "docs/screenshots/torri-continue-component-preview.png",
+          }
+          for name, source in screens.items():
+              im = Image.open(source).convert("RGB")
+              im.thumbnail((500, 900))
+              im.save("/tmp/torri_" + name + ".jpg", "JPEG", quality=48, optimize=True, subsampling=0)
+              print(name, im.size)
+          PY
+      - name: Emit real captured screenshots in compact form
         run: |
           set -euo pipefail
-          echo 'BEGIN_TORRI_STUDIO_PNG'
-          base64 -w 0 docs/screenshots/torri-actual-theme-studio.png
-          echo
-          echo 'END_TORRI_STUDIO_PNG'
-          echo 'BEGIN_TORRI_PICKER_PNG'
-          base64 -w 0 docs/screenshots/torri-actual-theme-studio-picker.png
-          echo
-          echo 'END_TORRI_PICKER_PNG'
-          echo 'BEGIN_TORRI_CONTINUE_PNG'
-          base64 -w 0 docs/screenshots/torri-continue-component-preview.png
-          echo
-          echo 'END_TORRI_CONTINUE_PNG'
+          for name in studio picker continue; do
+            echo "START_${name}_JPEG"
+            base64 -w 0 "/tmp/torri_${name}.jpg"
+            echo
+            echo "END_${name}_JPEG"
+          done
