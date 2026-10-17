@@ -263,6 +263,7 @@ data object LibraryTab : Tab {
                     chapterToResume?.let { history ->
                         LibraryResumePrompt(
                             mangaTitle = history.title,
+                            chapterNumber = history.chapterNumber,
                             onResume = {
                                 showResumePrompt = false
                                 context.startActivity(
