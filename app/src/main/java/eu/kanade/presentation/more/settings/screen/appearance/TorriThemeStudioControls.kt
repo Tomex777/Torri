@@ -54,7 +54,11 @@ internal fun TorriStudioSegments(
                 modifier = Modifier
                     .weight(1f)
                     .background(
-                        color = if (active) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
+                        color = if (active) {
+                            MaterialTheme.colorScheme.primaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.surfaceContainerLow
+                        },
                         shape = RoundedCornerShape(13.dp),
                     )
                     .border(
