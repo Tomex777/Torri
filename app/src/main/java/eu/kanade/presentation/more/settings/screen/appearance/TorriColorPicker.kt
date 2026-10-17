@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,6 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.i18n.stringResource
 
@@ -42,6 +43,9 @@ internal fun TorriColorPicker(
     val latestSaturation by rememberUpdatedState(saturation)
     val latestBrightness by rememberUpdatedState(brightness)
 
+    val colorPlaneDescription = stringResource(MR.strings.torri_theme_color_plane)
+    val hueDescription = stringResource(MR.strings.torri_theme_hue)
+
     Column(modifier = modifier) {
         Text(
             text = stringResource(MR.strings.torri_theme_color_plane),
@@ -51,7 +55,8 @@ internal fun TorriColorPicker(
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(206.dp)
+                .height(194.dp)
+                .semantics { contentDescription = colorPlaneDescription }
                 .clip(RoundedCornerShape(18.dp))
                 .pointerInput(Unit) {
                     detectTapGestures { position ->
@@ -91,7 +96,11 @@ internal fun TorriColorPicker(
                     colors = listOf(Color.Transparent, Color.Black),
                 ),
             )
-            val thumb = Offset(saturation * size.width, (1f - brightness) * size.height)
+            val margin = 11.dp.toPx()
+            val thumb = Offset(
+                (saturation * size.width).coerceIn(margin, size.width - margin),
+                ((1f - brightness) * size.height).coerceIn(margin, size.height - margin),
+            )
             drawCircle(
                 color = Color.Black,
                 radius = 11.dp.toPx(),
@@ -114,7 +123,8 @@ internal fun TorriColorPicker(
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(30.dp)
+                .height(28.dp)
+                .semantics { contentDescription = hueDescription }
                 .clip(RoundedCornerShape(16.dp))
                 .pointerInput(Unit) {
                     detectTapGestures { position ->
@@ -157,7 +167,11 @@ internal fun TorriColorPicker(
                     ),
                 ),
             )
-            val center = Offset(hue / 359f * size.width, size.height / 2f)
+            val radius = 12.dp.toPx()
+            val center = Offset(
+                (hue / 359f * size.width).coerceIn(radius, size.width - radius),
+                size.height / 2f,
+            )
             drawCircle(
                 color = Color.Black,
                 radius = 12.dp.toPx(),
@@ -171,12 +185,5 @@ internal fun TorriColorPicker(
                 style = Stroke(width = 3.dp.toPx()),
             )
         }
-        Spacer(Modifier.height(10.dp))
-        Text(
-            text = stringResource(MR.strings.torri_theme_picker_hint),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp),
-        )
     }
 }
