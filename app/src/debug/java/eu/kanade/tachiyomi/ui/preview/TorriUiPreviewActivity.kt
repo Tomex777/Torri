@@ -107,6 +107,7 @@ private fun ContinuePreview() {
             }
             LibraryResumePrompt(
                 mangaTitle = "Sample manga",
+                chapterNumber = 12.0,
                 onResume = {},
                 onDismiss = {},
                 modifier = Modifier
