@@ -1,5 +1,7 @@
 name: Capture Torri UI on Android emulator
 
+# Refresh current compact resume component and Torri color studio (2026-10-18).
+
 on:
   push:
     branches:
