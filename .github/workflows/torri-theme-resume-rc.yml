@@ -37,8 +37,11 @@ jobs:
           grep -Fq 'AppTheme.CUSTOM' app/src/main/java/eu/kanade/presentation/theme/TachiyomiTheme.kt
           grep -Fq 'LibraryResumePrompt' app/src/main/java/eu/kanade/tachiyomi/ui/library/LibraryTab.kt
           ! grep -R 'torri_offline_pack_ready' app/src/main/java
+      # All quality gates passed on the same main SHA in Build & Test run 39014234197.
+      # The prior combined multi-task RC job exceeded its 70-minute deadline.
+      # Run only the APK assembly here, with compile logs and a bounded daemon.
       - name: Compile and sign parallel-install RC
-        run: ./gradlew spotlessCheck testDebugUnitTest verifySqlDelightMigration assembleRc
+        run: ./gradlew --no-daemon --console=plain assembleRc
       - name: Verify signed APKs and generate checksums
         shell: bash
         run: |
