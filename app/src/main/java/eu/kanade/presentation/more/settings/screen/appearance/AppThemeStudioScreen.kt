@@ -10,19 +10,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,14 +33,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.presentation.components.AppBar
-import eu.kanade.presentation.more.settings.widget.AppThemePreviewItem
 import eu.kanade.presentation.theme.colorscheme.CustomColorScheme
 import eu.kanade.presentation.util.Screen
 import mihon.app.di.appGraph
@@ -52,8 +48,8 @@ import tachiyomi.presentation.core.i18n.stringResource
 import android.graphics.Color as AndroidColor
 
 /**
- * Edit three independent colors, preview day/night, and apply all values atomically.
- * No changes are persisted until the user chooses Apply.
+ * Torri color studio: local gesture picker and custom HEX field, real Material color-role preview.
+ * Nothing here modifies the user's Library grid, navigation icons or reader.
  */
 class AppThemeStudioScreen : Screen() {
     @Composable
@@ -110,15 +106,9 @@ class AppThemeStudioScreen : Screen() {
                 modifier = Modifier
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp, vertical = 14.dp),
+                    .padding(horizontal = 18.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                Text(
-                    text = stringResource(MR.strings.torri_theme_studio_hint),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -128,12 +118,17 @@ class AppThemeStudioScreen : Screen() {
                         text = stringResource(MR.strings.torri_theme_preview),
                         style = MaterialTheme.typography.titleMedium,
                     )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(MR.strings.torri_theme_preview_dark))
-                        Spacer(Modifier.width(8.dp))
-                        Switch(checked = previewDark, onCheckedChange = { previewDark = it })
-                    }
+                    TorriStudioSegments(
+                        titles = listOf(
+                            stringResource(MR.strings.torri_theme_edit_dark),
+                            stringResource(MR.strings.torri_theme_edit_light),
+                        ),
+                        selected = if (previewDark) 0 else 1,
+                        onSelect = { previewDark = it == 0 },
+                        modifier = Modifier.width(160.dp),
+                    )
                 }
+
                 MaterialExpressiveTheme(
                     colorScheme = CustomColorScheme.colorScheme(
                         isDark = previewDark,
@@ -143,57 +138,34 @@ class AppThemeStudioScreen : Screen() {
                         lightBackgroundHex = lightBackground,
                     ),
                 ) {
-                    Column(modifier = Modifier.width(174.dp)) {
-                        AppThemePreviewItem(selected = false, onClick = {})
-                    }
+                    TorriThemeLivePreview(modifier = Modifier.fillMaxWidth())
                 }
 
                 Text(
                     text = stringResource(MR.strings.torri_theme_customize),
                     style = MaterialTheme.typography.titleMedium,
                 )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    listOf(
-                        stringResource(MR.strings.torri_theme_accent),
-                        stringResource(MR.strings.torri_theme_background_dark),
-                        stringResource(MR.strings.torri_theme_background_light),
-                    ).forEachIndexed { index, title ->
-                        FilterChip(
-                            selected = editing == index,
-                            onClick = {
-                                editing = index
-                                if (index != 0) previewDark = index == 1
-                            },
-                            label = { Text(title) },
-                        )
-                    }
-                }
 
-                OutlinedTextField(
-                    value = selected,
-                    onValueChange = { updateSelected(it.take(7)) },
-                    label = { Text(stringResource(MR.strings.torri_theme_hex)) },
-                    supportingText = {
-                        if (validSelected == null) {
-                            Text(stringResource(MR.strings.torri_theme_hex_error))
-                        }
+                TorriStudioSegments(
+                    titles = listOf(
+                        stringResource(MR.strings.torri_theme_accent),
+                        stringResource(MR.strings.torri_theme_edit_dark),
+                        stringResource(MR.strings.torri_theme_edit_light),
+                    ),
+                    selected = editing,
+                    onSelect = { index ->
+                        editing = index
+                        if (index != 0) previewDark = index == 1
                     },
-                    isError = validSelected == null,
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
                     modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = {
-                        Spacer(
-                            modifier = Modifier
-                                .size(28.dp)
-                                .background(previewColor, CircleShape),
-                        )
-                    },
+                )
+
+                TorriHexField(
+                    value = selected,
+                    onValueChange = ::updateSelected,
+                    isValid = validSelected != null,
+                    previewColor = previewColor,
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 TorriColorPicker(
@@ -217,13 +189,17 @@ class AppThemeStudioScreen : Screen() {
                         val swatch = CustomColorScheme.toColor(hex, hex)
                         Spacer(
                             modifier = Modifier
-                                .size(38.dp)
+                                .size(42.dp)
                                 .border(
-                                    width = if (selected.equals(hex, ignoreCase = true)) 3.dp else 1.dp,
-                                    color = MaterialTheme.colorScheme.outline,
+                                    width = if (selected.equals(hex, ignoreCase = true)) 2.5.dp else 1.dp,
+                                    color = if (selected.equals(hex, ignoreCase = true)) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.outlineVariant
+                                    },
                                     shape = CircleShape,
                                 )
-                                .padding(3.dp)
+                                .padding(4.dp)
                                 .background(swatch, CircleShape)
                                 .clickable { updateSelected(hex) },
                         )
@@ -240,10 +216,14 @@ class AppThemeStudioScreen : Screen() {
                         (context as? Activity)?.let(ActivityCompat::recreate)
                     },
                     enabled = valid,
-                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
                 ) {
                     Text(stringResource(MR.strings.torri_theme_apply))
                 }
+
                 TextButton(
                     onClick = {
                         accent = CustomColorScheme.DEFAULT_ACCENT
