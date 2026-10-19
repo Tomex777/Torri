@@ -1,0 +1,56 @@
+name: Torri 1.1.0 private unsigned APK handoff
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/torri-unsigned-transfer.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package_unsigned:
+    if: github.repository == 'Tomex777/Torri' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    steps:
+      - name: Check out exact Torri private source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Java
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          java-version-file: .github/.java-version
+          distribution: temurin
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+      - name: Compile unsigned production APKs from Torri private source
+        env:
+          TORRI_UNSIGNED_HANDOFF: 'true'
+        run: ./gradlew --no-daemon --console=plain assembleRelease
+      - name: Validate no test signer, package and checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p handoff
+          TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          for variant in arm64-v8a universal; do
+            SRC="$(find app/build/outputs/apk/release -type f -name "*${variant}*release*unsigned*.apk" -print -quit)"
+            test -s "$SRC" || { echo "::error::Unsigned $variant APK not produced"; exit 1; }
+            "$TOOLS/aapt" dump badging "$SRC" | grep -Eq "^package: name='app.torri' versionCode='10001' versionName='1.1.0'"
+            if "$TOOLS/apksigner" verify "$SRC" >/dev/null 2>&1; then
+              echo "::error::Unexpected signer in unsigned handoff"
+              exit 1
+            fi
+            cp "$SRC" "handoff/Torri-1.1.0-${variant}-unsigned.apk"
+            sha256sum "handoff/Torri-1.1.0-${variant}-unsigned.apk" >> handoff/SHA256SUMS.txt
+          done
+          echo "$GITHUB_SHA" > handoff/source-commit.txt
+          echo 'PASS: exact Torri production IDs, UNSIGNED outputs, SHA256 checksums verified'
+      - name: Upload only unsigned distributable binaries, NOT private source
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: torri-v110-unsigned-bridge
+          path: handoff/
+          retention-days: 3
+          compression-level: 0
