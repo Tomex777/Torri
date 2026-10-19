@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   package_unsigned:
@@ -47,10 +47,24 @@ jobs:
           done
           echo "$GITHUB_SHA" > handoff/source-commit.txt
           echo 'PASS: exact Torri production IDs, UNSIGNED outputs, SHA256 checksums verified'
-      - name: Upload only unsigned distributable binaries, NOT private source
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: torri-v110-unsigned-bridge
-          path: handoff/
-          retention-days: 3
-          compression-level: 0
+      # GitHub Actions artifact storage quota is exhausted, so this handoff
+      # uses private repository text chunks. The private Torri code stays private.
+      - name: Stage lossless base64 APK chunks on private Torri handoff branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p handoff/relay/arm64-v8a handoff/relay/universal
+          for variant in arm64-v8a universal; do
+            base64 -w 0 "handoff/Torri-1.1.0-${variant}-unsigned.apk" |
+              split -b 880000 -d -a 3 - "handoff/relay/${variant}/part-"
+            printf '%s %s\n' "$variant" "$(find "handoff/relay/${variant}" -name 'part-*' | wc -l)" >> handoff/relay/part-counts.txt
+          done
+          cp handoff/SHA256SUMS.txt handoff/relay/SHA256SUMS.txt
+          cp handoff/source-commit.txt handoff/relay/source-commit.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -C ci/torri-unsigned-part-handoff
+          git add -f handoff/relay/
+          git commit -m 'ci: private-only Torri 1.1.0 unsigned APK relay data'
+          git push --force origin HEAD:refs/heads/ci/torri-unsigned-part-handoff
+          echo 'PASS: unsigned APK components staged privately; no source sent to Build.'
