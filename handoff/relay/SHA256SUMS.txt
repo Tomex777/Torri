@@ -1,0 +1,2 @@
+b1f8689b795e611dd22422ebcfa0adeecb1caed1a07b163923a6919c6de4fd0b  handoff/Torri-1.1.0-arm64-v8a-unsigned.apk
+f2c6937d2bf75390dbac3b3070ff43d9ae72d211e2cdf001958fc2f081d259ca  handoff/Torri-1.1.0-universal-unsigned.apk
